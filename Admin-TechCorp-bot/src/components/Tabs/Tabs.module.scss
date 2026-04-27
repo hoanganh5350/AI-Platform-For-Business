@@ -1,0 +1,32 @@
+@use "../../styles/config" as config;
+@use "../../styles/variables" as variables;
+
+.containerTabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.containerTabsTitle {
+  display: flex;
+  gap: 10px;
+  width: max-content;
+}
+
+.tabTitle {
+  padding: 2px 0px;
+  border-bottom: 3px solid transparent;
+  color: var(--color-tabs);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tabSelected {
+  border-bottom: 3px solid var(--color-tabs);
+}
+
+.containerTabsContent {
+  width: 100%;
+  max-height: inherit;
+}

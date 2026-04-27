@@ -1,0 +1,66 @@
+.dv-tab {
+  background-color: var(--background) !important;
+  color: var(--color-text) !important;
+  border-radius: 4px 4px 0px 0px !important;
+  border: 1px solid var(--border);
+  border-bottom: none !important;
+  box-sizing: border-box;
+}
+
+.dv-tab:focus-within::after,
+.dv-tab:focus::after {
+  outline: none !important;
+}
+
+.dv-active-tab {
+  background-color: var(--background-selected) !important;
+  color: var(--primary) !important;
+}
+
+.dv-tabs-container {
+  background-color: transparent !important;
+  gap: 2px;
+}
+.dv-tabs-container.dv-horizontal .dv-tab::before {
+  background-color: transparent !important;
+}
+
+.dv-tabs-and-actions-container {
+  background-color: var(--background-header-screens) !important;
+  /* border-bottom: 1px solid var(--border); */
+  box-sizing: border-box;
+}
+
+.dv-dockview {
+  background-color: transparent !important;
+}
+
+.dv-groupview {
+  background-color: var(--background) !important;
+  height: calc(100% - 4px) !important;
+  width: calc(100% - 4px) !important;
+  margin: 2px !important;
+}
+
+.dv-content-container {
+  border: 1px solid var(--border) !important;
+  box-sizing: border-box;
+  border-radius: 0px 0px 4px 4px !important;
+}
+
+.dv-split-view-container.dv-separator-border
+  .dv-view:not(:first-child)::before {
+  background-color: transparent !important;
+}
+
+.dv-split-view-container.dv-horizontal > .dv-sash-container > .dv-sash:hover {
+  background-color: var(--color-text-38) !important;
+  transition-delay: unset !important;
+  width: 6px !important;
+}
+
+.dv-split-view-container.dv-vertical > .dv-sash-container > .dv-sash:hover {
+  background-color: var(--color-text-38) !important;
+  transition-delay: unset !important;
+  height: 6px !important;
+}

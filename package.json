@@ -1,0 +1,22 @@
+{
+  "name": "ai-platform-for-business",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Workspace root for AI-Platform-For-Business, including BE, FE, and Admin-TechCorp-bot.",
+  "workspaces": [
+    "BE",
+    "FE",
+    "Admin-TechCorp-bot"
+  ],
+  "scripts": {
+    "dev:be": "npm run dev --workspace BE",
+    "dev:fe": "npm run dev --workspace FE",
+    "dev:admin": "npm run dev --workspace Admin-TechCorp-bot",
+    "build": "npm run build --workspace FE && npm run build --workspace Admin-TechCorp-bot",
+    "build:fe": "npm run build --workspace FE",
+    "build:admin": "npm run build --workspace Admin-TechCorp-bot",
+    "lint:be": "npm run lint --workspace BE",
+    "lint:fe": "npm run lint --workspace FE",
+    "lint:admin": "npm run lint --workspace Admin-TechCorp-bot"
+  }
+}

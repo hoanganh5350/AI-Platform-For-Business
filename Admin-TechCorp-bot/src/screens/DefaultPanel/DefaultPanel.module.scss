@@ -1,0 +1,19 @@
+.containerDefaultPanel {
+  width: 100%;
+  height: 100%;
+}
+
+.containerListAddScreen {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  justify-items: center;
+  align-items: center;
+  color: var(--color-text);
+}
+
+.buttonAddScreen {
+  width: 250px;
+  background-color: rgb(114, 114, 114);
+}

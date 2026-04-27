@@ -1,0 +1,21 @@
+:root[data-theme="dark"] {
+  --color-text: rgba(255, 255, 255, 0.87);
+  --color-text-60: rgba(255, 255, 255, 0.6);
+  --color-text-38: rgba(255, 255, 255, 0.38);
+  --background: #121212;
+  --background-panel: #222222;
+  --background-component: #303030;
+  --background-header-screens: #1f1f1f;
+  --border: #4b4b4b;
+  --primary: #2673dd;
+  --warning: #b28400;
+  --error: #ab2830;
+  --success: #309053;
+  --background-selected: #3b3b3b;
+  --color-tabs: #bf9b30;
+
+  --background-header-ag-grid: #323232;
+  --background-row-ag-grid: #131313;
+  --background-row-odd-ag-grid: #232323;
+  --scheme: dark
+}

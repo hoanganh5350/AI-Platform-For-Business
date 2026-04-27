@@ -1,0 +1,22 @@
+@use "../../styles/config" as config;
+@use "../../styles/variables" as variables;
+
+.containerLayoutTrading {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.containerBodyLayout {
+  display: flex;
+  height: 100%;
+}
+
+.containerOutlet {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}

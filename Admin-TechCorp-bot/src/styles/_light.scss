@@ -1,0 +1,22 @@
+:root[data-theme="light"] {
+  --color-text: rgba(0, 0, 0, 0.87);
+  --color-text-60: rgba(0, 0, 0, 0.6);
+  --color-text-38: rgba(0, 0, 0, 0.38);
+  --background: #f0f2f5;
+  --background-panel: #fafafa;
+  --background-component: #f1f1f1;
+  --background-header-screens: #eeeeee;
+  --border: #ebebeb;
+  --primary: #2673dd;
+  --warning: #ffbb00;
+  --error: #ee2c4a;
+  --success: #44cc77;
+  --background-selected: #e6f4ff;
+  --color-tabs: #2673dd;
+
+  
+  --background-header-ag-grid: #e8e8e8;
+  --background-row-ag-grid: #f5f5f5;
+  --background-row-odd-ag-grid: #e1e1e1;
+  --scheme: light
+}

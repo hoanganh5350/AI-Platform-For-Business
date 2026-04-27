@@ -1,0 +1,73 @@
+@use "../../styles/config" as config;
+@use "../../styles/variables" as variables;
+
+.menuLeft {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: fit-content;
+  position: relative;
+  box-shadow: 4px 0 4px -4px rgba(0, 0, 0, 0.2);
+  background: var(--background-panel);
+
+  ul {
+    border-inline-end: none !important;
+    overflow: hidden;
+    overflow-y: scroll;
+    background: var(--background-panel) !important;
+    color: var(--color-text) !important;
+  }
+  // li {
+  //   background: var(--background-panel) !important;
+  //   color: var(--color-text) !important;
+  // }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+    border-radius: 4px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background: #888;
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+}
+
+.buttonToggle {
+  border-radius: 99px;
+  width: 20px;
+  height: 30px;
+  margin: 4px;
+  margin-left: auto;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
+  position: absolute;
+  right: -18px;
+  top: 12px;
+  z-index: 1;
+  background: var(--background-component);
+  color: var(--color-text);
+  border-color: var(--border);
+}
+
+.menuAnt {
+  padding: 6px 4px;
+}
+
+.menuCollap {
+  width: 60px !important;
+}
+
+.menuExpan {
+  width: 250px !important;
+}

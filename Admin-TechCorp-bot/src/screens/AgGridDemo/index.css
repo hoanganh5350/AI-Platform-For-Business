@@ -1,0 +1,21 @@
+.ag-root-wrapper {
+  border-radius: 0px !important;
+  border: none !important;
+  background-color: var(--background-component) !important;
+  color-scheme: var(--scheme) !important;
+}
+
+.ag-header {
+  background-color: var(--background-header-ag-grid) !important;
+  color: var(--color-text);
+}
+
+.ag-row-odd {
+  background-color: var(--background-row-odd-ag-grid);
+  color: var(--color-text);
+}
+
+.ag-row-even {
+  background-color: var(--background-row-ag-grid);
+  color: var(--color-text);
+}
