@@ -18,14 +18,17 @@
 
 .react {
   display: flex;
-  gap: 8px;
+  gap: 4px;
   width: max-content;
 }
 
 .textReact {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
-  color: #00d8ff;
+  color: #4800ff9e;
+  align-content: center;
+  font-style: italic;
+  font-family: cursive;
 }
 
 @keyframes logo-spin {

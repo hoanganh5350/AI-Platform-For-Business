@@ -1,6 +1,6 @@
 import { type ReactNode } from "react";
 import { Outlet } from "react-router-dom";
-import { menuItem } from "./Menuitem";
+import { menuItem } from "./MenuItem";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import styles from "./MainLayout.module.scss";
