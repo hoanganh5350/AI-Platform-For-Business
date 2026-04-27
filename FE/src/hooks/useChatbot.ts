@@ -6,8 +6,8 @@ import { AISuggestion } from '../types';
 interface UseChatbotOptions {
   apiUrl: string;
   businessId: string;
-  onNavigate?: (nodeId: string) => void;
-  onAction?: (nodeId: string) => void;
+  onNavigate?: (nodeId: string, label?: string) => void;
+  onAction?: (nodeId: string, label?: string) => void;
 }
 
 export const useChatbot = ({
@@ -37,10 +37,11 @@ export const useChatbot = ({
   const handleSuggestion = useCallback(
     (suggestion?: AISuggestion) => {
       if (!suggestion) return;
+      // Pass both nodeId and AI-provided label (v2) to callbacks
       if (suggestion.type === 'navigate' && onNavigate) {
-        onNavigate(suggestion.target);
+        onNavigate(suggestion.target, suggestion.label);
       } else if (suggestion.type === 'action' && onAction) {
-        onAction(suggestion.target);
+        onAction(suggestion.target, suggestion.label);
       }
     },
     [onNavigate, onAction]

@@ -17,23 +17,10 @@ const MessageList: React.FC<MessageListProps> = ({
 }) => {
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  // Auto-scroll to latest message
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  const findNodeLabel = (nodeId: string): string => {
-    const findInTree = (nodes: UIFlowNode[]): string | null => {
-      for (const node of nodes) {
-        if (node.id === nodeId) return node.label;
-        if (node.children) {
-          const found = findInTree(node.children);
-          if (found) return found;
-        }
-      }
-      return null;
-    };
-    return findInTree(uiFlowTree) || nodeId;
-  };
 
   return (
     <div className="acp-message-list">
@@ -42,7 +29,7 @@ const MessageList: React.FC<MessageListProps> = ({
           key={msg.id}
           message={msg}
           primaryColor={primaryColor}
-          nodeLabel={msg.suggestion ? findNodeLabel(msg.suggestion.target) : undefined}
+          uiFlowTree={uiFlowTree}
           onSuggestionClick={onSuggestionClick}
         />
       ))}

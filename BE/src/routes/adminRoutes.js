@@ -10,6 +10,7 @@ const {
   updateDescription,
   updateUIFlowTree,
   deleteConfig,
+  updateBusinessInfo,
 } = require('../controllers/adminController');
 
 const router = express.Router();
@@ -19,13 +20,13 @@ router.use(adminAuth);
 
 /**
  * @route   POST /api/admin/config
- * @desc    Create or update business config
+ * @desc    Create or update full business config (upsert)
  */
 router.post('/config', validate(schemas.upsertConfig), upsertConfig);
 
 /**
  * @route   GET /api/admin/config
- * @desc    List all business configs
+ * @desc    List all business configs (paginated)
  */
 router.get('/config', listConfigs);
 
@@ -36,16 +37,34 @@ router.get('/config', listConfigs);
 router.get('/config/:businessId', getConfig);
 
 /**
- * @route   PATCH /api/admin/config/:businessId/description
- * @desc    Update business description
+ * @route   PATCH /api/admin/config/:businessId/business-info
+ * @desc    Update business info (name, industry, contact, website, tone, chatbotName, etc.)
  */
-router.patch('/config/:businessId/description', validate(schemas.updateDescription), updateDescription);
+router.patch(
+  '/config/:businessId/business-info',
+  validate(schemas.updateBusinessInfo),
+  updateBusinessInfo
+);
+
+/**
+ * @route   PATCH /api/admin/config/:businessId/description
+ * @desc    Update business description (AI knowledge base)
+ */
+router.patch(
+  '/config/:businessId/description',
+  validate(schemas.updateDescription),
+  updateDescription
+);
 
 /**
  * @route   PATCH /api/admin/config/:businessId/ui-flow
- * @desc    Update UI flow tree
+ * @desc    Update UI flow tree (navigation structure)
  */
-router.patch('/config/:businessId/ui-flow', validate(schemas.updateUIFlowTree), updateUIFlowTree);
+router.patch(
+  '/config/:businessId/ui-flow',
+  validate(schemas.updateUIFlowTree),
+  updateUIFlowTree
+);
 
 /**
  * @route   DELETE /api/admin/config/:businessId

@@ -81,4 +81,28 @@ const deleteConfig = async (req, res) => {
   });
 };
 
-module.exports = { upsertConfig, listConfigs, getConfig, updateDescription, updateUIFlowTree, deleteConfig };
+/**
+ * PATCH /api/admin/config/:businessId/business-info
+ * Update business info fields (name, industry, contact, website, tone, etc.)
+ */
+const updateBusinessInfo = async (req, res) => {
+  const { businessId } = req.params;
+  const BusinessConfig = require('../models/BusinessConfig');
+  const config = await BusinessConfig.findOneAndUpdate(
+    { businessId },
+    { $set: req.body },
+    { new: true, runValidators: true }
+  );
+  if (!config) {
+    const err = new Error(`Business config not found: ${businessId}`);
+    err.statusCode = 404;
+    throw err;
+  }
+  return res.status(200).json({
+    success: true,
+    message: 'Business info updated',
+    data: config,
+  });
+};
+
+module.exports = { upsertConfig, listConfigs, getConfig, updateDescription, updateUIFlowTree, deleteConfig, updateBusinessInfo };

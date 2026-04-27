@@ -48,9 +48,10 @@ const Chatbot: React.FC<ChatbotProps> = ({
   const handleSuggestionClick = useCallback(
     (suggestion: AISuggestion) => {
       if (suggestion.type === 'navigate' && onNavigate) {
-        onNavigate(suggestion.target);
+        // Pass AI-returned label (v2) as second arg
+        onNavigate(suggestion.target, suggestion.label);
       } else if (suggestion.type === 'action' && onAction) {
-        onAction(suggestion.target);
+        onAction(suggestion.target, suggestion.label);
       }
     },
     [onNavigate, onAction]
