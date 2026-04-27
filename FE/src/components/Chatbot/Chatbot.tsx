@@ -19,7 +19,7 @@ const Chatbot: React.FC<ChatbotProps> = ({
   defaultOpen = false,
 }) => {
   // Load remote config
-  const { config, loading: configLoading } = useBusinessConfig(apiUrl, businessId);
+  const { config, loading: configLoading, error: configError } = useBusinessConfig(apiUrl, businessId);
 
   // Chat state & actions
   const {
@@ -67,6 +67,13 @@ const Chatbot: React.FC<ChatbotProps> = ({
               <div className="acp-spinner" style={{ borderTopColor: primaryColor }} />
               <p>Initializing AI assistant...</p>
             </div>
+          ) : (configError || !config) ? (
+            <div style={{ padding: '40px', textAlign: 'center', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+              <div style={{ fontSize: '64px', marginBottom: '24px', color: '#ff4d4f' }}>⚠️</div>
+              <h2 style={{ margin: '0 0 16px 0', color: '#333' }}>Chatbot Chưa Được Cấu Hình</h2>
+              <p style={{ color: '#666', fontSize: '16px', marginBottom: '16px', maxWidth: '400px' }}>Business ID <strong>"{businessId}"</strong> chưa tồn tại trên hệ thống.</p>
+              <p style={{ color: '#666', fontSize: '16px', maxWidth: '400px' }}>Vui lòng đăng nhập vào trang Admin Platform để khởi tạo cấu hình cho doanh nghiệp của bạn, sau đó quay lại trang này.</p>
+            </div>
           ) : (
             <ChatBox
               chatbotName={resolvedChatbotName}
@@ -96,7 +103,14 @@ const Chatbot: React.FC<ChatbotProps> = ({
           className={`acp-float-panel ${isOpen ? 'acp-float-panel--open' : ''}`}
           aria-hidden={!isOpen}
         >
-          {!configLoading && (
+          {!configLoading && (configError || !config) ? (
+            <div style={{ padding: '20px', textAlign: 'center', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', backgroundColor: '#fff', borderRadius: '12px' }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px', color: '#ff4d4f' }}>⚠️</div>
+              <h3 style={{ margin: '0 0 8px 0', color: '#333' }}>Chatbot Chưa Được Cấu Hình</h3>
+              <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>Business ID "{businessId}" chưa tồn tại trên hệ thống.</p>
+              <p style={{ color: '#666', fontSize: '14px' }}>Vui lòng đăng nhập vào trang Admin để khởi tạo cấu hình cho doanh nghiệp của bạn.</p>
+            </div>
+          ) : !configLoading ? (
             <ChatBox
               chatbotName={resolvedChatbotName}
               welcomeMessage={resolvedWelcomeMessage}
@@ -111,7 +125,7 @@ const Chatbot: React.FC<ChatbotProps> = ({
               onClear={clearChat}
               onSuggestionClick={handleSuggestionClick}
             />
-          )}
+          ) : null}
         </div>
 
         {/* Floating trigger button */}

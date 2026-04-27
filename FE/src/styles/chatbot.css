@@ -27,13 +27,19 @@
 /* ─── Float Root ─────────────────────────────────────────────── */
 .acp-root--float {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
+  bottom: 75px;
+  right: 70px;
   z-index: 9999;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 12px;
+}
+
+.ant-float-btn .ant-float-btn-icon {
+  font-size: 22px !important;
+  width: 22px !important;
+  height: 22px !important;
 }
 
 /* ─── Fullpage Root ──────────────────────────────────────────── */
@@ -74,6 +80,7 @@
   border-radius: var(--acp-radius);
   overflow: hidden;
   border: 1px solid var(--acp-border);
+  box-sizing: border-box;
 }
 
 .acp-chatbox--fullpage {
@@ -360,6 +367,7 @@
 .acp-chat-input {
   display: flex;
   align-items: flex-end;
+  align-items: center;
   gap: 8px;
   padding: 10px 12px;
 }
@@ -373,11 +381,11 @@
   font-family: var(--acp-font-family);
   font-size: 13.5px;
   line-height: 1.5;
-  padding: 8px 12px;
+  padding: 8px 10px;
   resize: none;
   outline: none;
   transition: border-color var(--acp-transition);
-  min-height: 36px;
+  min-height: 28px;
   max-height: 120px;
   overflow-y: auto;
 }
@@ -392,8 +400,8 @@
 }
 
 .acp-chat-input__send {
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
   border-radius: 10px;
   border: none;
   background: #6366f1;

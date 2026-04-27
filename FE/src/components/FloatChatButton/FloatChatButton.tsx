@@ -33,7 +33,7 @@ const FloatChatButton: React.FC<FloatChatButtonProps> = ({
             </svg>
           )
         }
-        style={{ background: primaryColor, color: '#fff', width: 56, height: 56 }}
+        style={{ background: primaryColor, color: '#fff', width: 50, height: 50, fontSize: 22 }}
         onClick={onClick}
         aria-label={isOpen ? 'Close chat' : 'Open chat'}
         className="acp-float-btn"
