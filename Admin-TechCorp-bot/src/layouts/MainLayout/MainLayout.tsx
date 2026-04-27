@@ -1,6 +1,6 @@
 import { type ReactNode } from "react";
 import { Outlet } from "react-router-dom";
-import { menuItem } from "./MenuItem";
+import { getMenuItems } from "./MenuItem";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import styles from "./MainLayout.module.scss";
@@ -24,7 +24,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
           onSelect={(e) => {
             navigate(e.key);
           }}
-          items={menuItem}
+          items={getMenuItems()}
         />
         <div className={styles.containerOutlet}>{children ?? <Outlet />}</div>
       </div>

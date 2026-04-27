@@ -1,5 +1,11 @@
 'use strict';
 
+// Force Node.js to use Google DNS for Atlas SRV record resolution
+// (Fixes: querySrv ECONNREFUSED _mongodb._tcp.cluster0...)
+const dns = require('dns');
+dns.setDefaultResultOrder('ipv4first');
+dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
+
 require('dotenv').config();
 const app = require('./app');
 const logger = require('./utils/logger');

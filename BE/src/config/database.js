@@ -20,8 +20,10 @@ const connectDB = async () => {
   let uri = process.env.MONGO_URI || '';
   const isDev = process.env.NODE_ENV !== 'production';
 
-  // If no real URI configured, use in-memory server in dev mode
-  const useMemory = !uri || uri.includes('localhost:27017') || uri.includes('127.0.0.1:27017');
+  // If no real URI configured, or URI is local → use in-memory server in dev mode
+  // Atlas URIs (mongodb+srv://) always go through the real connection path
+  const isLocalUri = !uri || uri.includes('localhost') || uri.includes('127.0.0.1');
+  const useMemory = isLocalUri;
 
   mongoose.connection.on('connected', () => logger.info('✅ MongoDB connected'));
   mongoose.connection.on('error', (err) => logger.error('MongoDB error:', err));

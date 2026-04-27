@@ -55,6 +55,27 @@ button:hover {
   border-color: #646cff;
 }
 
+::-webkit-scrollbar {
+  width: 4px;
+  border-radius: 4px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
 // @media (prefers-color-scheme: light) {
 //   :root {
 //     color: #213547;

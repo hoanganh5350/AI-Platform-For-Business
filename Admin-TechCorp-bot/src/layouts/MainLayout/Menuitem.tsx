@@ -4,36 +4,37 @@ import {
   DesktopOutlined,
   ContainerOutlined,
   AppstoreOutlined,
-  LineChartOutlined,
 } from "@ant-design/icons";
 import { ROUTES } from "../../router/constants";
 
-export const menuItem: ItemType[] = [
-  {
-    key: "dashboard",
-    icon: <AppstoreOutlined />,
-    label: "Dashboard",
-    children: [
+export const getMenuItems = (): ItemType[] => {
+  const hasBusiness = !!localStorage.getItem('currentBusinessId');
+  
+  if (!hasBusiness) {
+    return [
       {
         key: ROUTES.DASHBOARD,
-        icon: <PieChartOutlined />,
-        label: "Dashboard Main",
-      },
-      {
-        key: ROUTES.DASHBOARD_VIEW,
-        icon: <DesktopOutlined />,
-        label: "Dashboard View",
-      },
-      {
-        key: ROUTES.DASHBOARD_VIEW_MODEL,
-        icon: <ContainerOutlined />,
-        label: "Dashboard View Model sdsdfsdfsdfsd",
-      },
-    ],
-  },
-  {
-    key: ROUTES.TRADING_VIEW,
-    icon: <LineChartOutlined />,
-    label: "Trading View",
-  },
-];
+        icon: <AppstoreOutlined />,
+        label: "Bảng Điều Khiển",
+      }
+    ];
+  }
+
+  return [
+    {
+      key: ROUTES.BUSINESS_INFO,
+      icon: <ContainerOutlined />,
+      label: "Thông tin Doanh nghiệp",
+    },
+    {
+      key: ROUTES.CHATBOT_CONFIG,
+      icon: <DesktopOutlined />,
+      label: "Cấu hình AI Chatbot",
+    },
+    {
+      key: ROUTES.UIFLOW_CONFIG,
+      icon: <PieChartOutlined />,
+      label: "Luồng Màn hình (UI Flow)",
+    }
+  ];
+};

@@ -1,4 +1,5 @@
 import { ProtectedRoute } from "../../components/ProtectedRoute/ProtectedRoute";
+import LayoutHeaderNoSidebar from "../../layouts/LayoutHeaderNoSidebar/LayoutHeaderNoSidebar";
 import LayoutTrading from "../../layouts/LayoutTrading/LayoutTrading";
 import MainLayout from "../../layouts/MainLayout/MainLayout";
 import { ELayout } from "../../utils/types/layout";
@@ -23,6 +24,9 @@ export const WrapElement: React.MemoExoticComponent<
       }
       case ELayout.LAYOUT_TRADING_VIEW: {
         return <LayoutTrading>{element}</LayoutTrading>;
+      }
+      case ELayout.LAYOUT_HEADER_NO_SIDEBAR: {
+        return <LayoutHeaderNoSidebar>{element}</LayoutHeaderNoSidebar>;
       }
       default: {
         return element;

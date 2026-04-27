@@ -5,6 +5,10 @@ import type { UserRole } from "../utils/types/user";
 export const ROUTES = {
   LOGIN: "/login",
   DASHBOARD: "/dashboard",
+  SETUP: "/setup",
+  BUSINESS_INFO: "/business-info",
+  CHATBOT_CONFIG: "/chatbot-config",
+  UIFLOW_CONFIG: "/uiflow-config",
   DASHBOARD_VIEW: "/dashboard/view",
   DASHBOARD_VIEW_MODEL: "/dashboard/view/model",
   DASHBOARD_VIEW_MODEL_CONTROLLER: "/dashboard/view/model/controller",

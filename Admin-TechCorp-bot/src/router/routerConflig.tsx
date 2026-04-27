@@ -1,6 +1,10 @@
 import { Dashboard } from "../pages/Dashboard/Dashboard";
 import { DashboardView } from "../pages/DashboardView/DashboardView";
 import { TradingView } from "../pages/TradingView/TradingView";
+import { SetupWizard } from "../pages/SetupWizard/SetupWizard";
+import { BusinessInfo } from "../pages/BusinessInfo/BusinessInfo";
+import { ChatbotConfig } from "../pages/ChatbotConfig/ChatbotConfig";
+import { UIFlowConfig } from "../pages/UIFlowConfig/UIFlowConfig";
 import { nestRoutesByPath } from "../utils/router/nestRoutesByPath";
 import { ELayout } from "../utils/types/layout";
 import { UserRole } from "../utils/types/user";
@@ -19,6 +23,26 @@ const flatRoutes: RouteItem[] = [
   {
     path: ROUTES.DASHBOARD,
     element: <Dashboard />,
+    layout: ELayout.LAYOUT_HEADER_NO_SIDEBAR,
+  },
+  {
+    path: ROUTES.SETUP,
+    element: <SetupWizard />,
+    layout: ELayout.LAYOUT_HEADER_NO_SIDEBAR,
+  },
+  {
+    path: ROUTES.BUSINESS_INFO,
+    element: <BusinessInfo />,
+    layout: ELayout.MAIN_LAYOUT,
+  },
+  {
+    path: ROUTES.CHATBOT_CONFIG,
+    element: <ChatbotConfig />,
+    layout: ELayout.MAIN_LAYOUT,
+  },
+  {
+    path: ROUTES.UIFLOW_CONFIG,
+    element: <UIFlowConfig />,
     layout: ELayout.MAIN_LAYOUT,
   },
   {
