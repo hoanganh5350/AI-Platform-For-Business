@@ -11,10 +11,10 @@ export function useGetThemeSystem() {
   // Đồng bộ khi mount và lắng nghe sự kiện đổi theme
   useEffect(() => {
     const current = document.documentElement.getAttribute("data-theme") as ThemeMode;
-    if (current) {
-      setTheme(current);
-    } else {
-      setThemeSystem(theme); // gán lần đầu
+    // index.html hardcodes data-theme="light", so current is always "light" initially.
+    // We must prioritize the 'theme' state (which comes from localStorage).
+    if (current !== theme) {
+      setThemeSystem(theme); // Ghi đè lại HTML attribute bằng giá trị từ localStorage
     }
 
     const handleThemeChange = (e: Event) => {
