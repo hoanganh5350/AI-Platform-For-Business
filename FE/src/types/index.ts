@@ -54,6 +54,8 @@ export interface AISuggestion {
   target: string;
   /** v2: short call-to-action text returned by AI (e.g. "View Products") */
   label?: string;
+  /** v3: absolute URL returned by AI when node has a direct deeplink */
+  url?: string;
 }
 
 // ─── AI Response ──────────────────────────────────────────────────────────────

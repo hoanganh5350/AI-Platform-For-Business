@@ -19,7 +19,11 @@ export const SetupWizard: React.FC = () => {
 
   const handleNextStep1 = async () => {
     try {
-      const values = await form1.validateFields();
+      // validate registered fields (required rules etc.)
+      await form1.validateFields();
+      // getFieldsValue(true) fetches ALL values including those set via setFieldValue
+      // that don't have a corresponding <Form.Item> (e.g. customFieldTitles)
+      const values = form1.getFieldsValue(true);
       setBusinessData(values);
       setCurrentStep(1);
     } catch (error) {
@@ -39,12 +43,14 @@ export const SetupWizard: React.FC = () => {
       // First pass: create nodes
       blocks.forEach((block: UIBlockForm, index: number) => {
         const id = block.name ? block.name.toLowerCase().replace(/[^a-z0-9]/g, '-') : `node-${index}`;
+        // Use admin-provided absolute URL if set, else fallback to generated path
+        const url = block.absoluteUrl?.trim() || `/${id}`;
         nodeMap[id] = {
           id,
           name: block.name,
           description: block.description,
           actionType: 'navigate',
-          url: `/${id}`,
+          url,
           children: []
         };
         block._id = id; // temp ID
@@ -74,13 +80,26 @@ export const SetupWizard: React.FC = () => {
       // Generate random ID if none provided
       const businessId = (businessData.businessName || 'biz').toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Math.floor(Math.random() * 1000);
       
+      // Build description string: base + representative/goal + custom extra fields
+      const baseDescription = `Representative: ${businessData.representative || 'N/A'}\nGoal: ${businessData.goal || 'N/A'}\n\n${businessData.description}`;
+      const customFieldsObj = businessData.customFields || {};
+      const customFieldTitles = businessData.customFieldTitles || {};
+      const customSections = Object.entries(customFieldsObj)
+        .filter(([, v]) => v && String(v).trim())
+        // Use the actual title stored in customFieldTitles, fallback to key if missing
+        .map(([k, v]) => `[${customFieldTitles[k] || k}]: ${v}`)
+        .join('\n');
+      const fullDescription = customSections
+        ? `${baseDescription}\n\n--- Thông tin bổ sung ---\n${customSections}`
+        : baseDescription;
+
       const payload = {
         businessId,
         businessName: businessData.businessName || '',
         industry: businessData.industry,
         contact: businessData.contact,
         website: businessData.website,
-        description: `Representative: ${businessData.representative}\nGoal: ${businessData.goal}\n\n${businessData.description}`,
+        description: fullDescription,
         tone: 'professional' as const,
         chatbotName: 'SupportBot',
         welcomeMessage: 'Xin chào! Tôi có thể giúp gì cho bạn?',

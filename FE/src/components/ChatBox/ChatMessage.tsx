@@ -69,16 +69,33 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
             </div>
 
             {/* Suggestion Chip — shows AI-provided label or resolved node name */}
-            {message.suggestion && onSuggestionClick && (
-              <button
-                className="acp-suggestion-chip"
-                style={{ borderColor: primaryColor, color: primaryColor }}
-                onClick={() => onSuggestionClick(message.suggestion!)}
-                title={`${message.suggestion.type}: ${message.suggestion.target}`}
-              >
-                {getSuggestionIcon(message.suggestion.type)}{' '}
-                <strong>{getSuggestionLabel(message.suggestion)}</strong>
-              </button>
+            {message.suggestion && (
+              message.suggestion.url ? (
+                // Has absolute URL → render as a direct link opening in new tab
+                <a
+                  className="acp-suggestion-chip acp-suggestion-chip--link"
+                  href={message.suggestion.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ borderColor: primaryColor, color: primaryColor }}
+                  title={`Mở: ${message.suggestion.url}`}
+                >
+                  🔗{' '}
+                  <strong>{getSuggestionLabel(message.suggestion)}</strong>
+                  <span style={{ fontSize: '10px', marginLeft: 4, opacity: 0.7 }}>↗</span>
+                </a>
+              ) : onSuggestionClick ? (
+                // No URL → chip that fires onSuggestionClick for in-app navigation
+                <button
+                  className="acp-suggestion-chip"
+                  style={{ borderColor: primaryColor, color: primaryColor }}
+                  onClick={() => onSuggestionClick(message.suggestion!)}
+                  title={`${message.suggestion.type}: ${message.suggestion.target}`}
+                >
+                  {getSuggestionIcon(message.suggestion.type)}{' '}
+                  <strong>{getSuggestionLabel(message.suggestion)}</strong>
+                </button>
+              ) : null
             )}
 
             <span className="acp-message__time">{formatTime(message.timestamp)}</span>

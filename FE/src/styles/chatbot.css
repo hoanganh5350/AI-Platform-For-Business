@@ -345,6 +345,18 @@
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
 }
 
+/* Link chip — opens in new tab (has absolute URL) */
+.acp-suggestion-chip--link {
+  text-decoration: none;
+}
+
+.acp-suggestion-chip--link:hover {
+  background: rgba(99, 102, 241, 0.12);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  text-decoration: none;
+}
+
 /* ─── Error Banner ───────────────────────────────────────────── */
 .acp-error-banner {
   background: rgba(239, 68, 68, 0.12);

@@ -31,13 +31,16 @@ class AIService {
     for (const node of nodes) {
       const displayName = node.name || node.label || node.id;
       const route = node.url || node.path || '';
+      // Only treat as "absolute" if it's a real HTTP URL or starts with / but is non-trivial
+      const isAbsoluteUrl = route && (route.startsWith('http') || (route.startsWith('/') && route.length > 1 && route !== `/${node.id}`));
       const actionType = node.actionType || (node.action ? 'action' : 'navigate');
       const desc = node.description ? ` — ${node.description}` : '';
-      const routeStr = route ? ` | url: ${route}` : '';
+      const routeStr = route ? ` | url: ${route}` : ' | url: NONE';
+      const absoluteFlag = isAbsoluteUrl ? ' | HAS_ABSOLUTE_URL: true' : ' | HAS_ABSOLUTE_URL: false';
       const parentStr = node.parentId ? ` | parentId: ${node.parentId}` : '';
       const actionStr = node.action ? ` | action: ${node.action}` : '';
 
-      result += `${indent}• id: "${node.id}" | name: "${displayName}" | actionType: ${actionType}${routeStr}${parentStr}${desc}${actionStr}\n`;
+      result += `${indent}• id: "${node.id}" | name: "${displayName}" | actionType: ${actionType}${routeStr}${absoluteFlag}${parentStr}${desc}${actionStr}\n`;
 
       if (node.children && node.children.length > 0) {
         result += this._formatUIFlowTree(node.children, depth + 1);
@@ -143,15 +146,27 @@ Return the node's id as the suggestion target.
 
 RULE: Your ENTIRE response must be a single valid JSON object. No markdown. No explanation. No text outside JSON.
 
-When a UI node matches the user's intent:
+When a UI node matches AND the node has HAS_ABSOLUTE_URL: true:
 {
-  "message": "Your helpful response based on business context",
+  "message": "Your helpful response. You can access this feature directly here:",
   "suggestion": {
     "type": "navigate",
     "target": "exact_node_id",
-    "label": "Short call-to-action text (e.g. View Products)"
+    "label": "Short call-to-action text (e.g. View Products)",
+    "url": "the exact url value from the node's url field"
   }
 }
+
+When a UI node matches BUT the node has HAS_ABSOLUTE_URL: false (url is NONE or auto-generated):
+{
+  "message": "Step-by-step guide starting from the home screen. Example: To access [Feature], from the Home screen → go to [Parent] → click [Feature Name].",
+  "suggestion": {
+    "type": "navigate",
+    "target": "exact_node_id",
+    "label": "Short call-to-action text"
+  }
+}
+IMPORTANT: When HAS_ABSOLUTE_URL is false, your message MUST include step-by-step navigation instructions beginning from the root screen, using the parentId chain from the UI flow tree to build the path.
 
 When user needs to trigger an action (form, modal, button):
 {
@@ -277,6 +292,10 @@ OUTPUT ONLY JSON. No markdown. No code blocks. No extra text. Always valid JSON.
           // v2: include label if present
           if (typeof parsed.suggestion.label === 'string' && parsed.suggestion.label.trim()) {
             result.suggestion.label = parsed.suggestion.label.trim();
+          }
+          // v3: include absolute url if AI returned one
+          if (typeof parsed.suggestion.url === 'string' && parsed.suggestion.url.trim()) {
+            result.suggestion.url = parsed.suggestion.url.trim();
           }
         }
       }
