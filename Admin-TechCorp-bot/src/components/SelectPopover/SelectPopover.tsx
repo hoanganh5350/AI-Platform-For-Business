@@ -1,5 +1,6 @@
 import React, { ReactNode, useMemo, useState } from "react";
 import { Popover, List } from "antd";
+import { AppThemeProvider } from "../AppThemeProvider/AppThemeProvider";
 import styles from "./SelectPopover.module.scss";
 
 interface Option {
@@ -45,14 +46,16 @@ export const SelectPopover: React.FC<SelectPopoverProps> = ({
   );
 
   return (
-    <Popover
-      content={content}
-      trigger={trigger}
-      open={isClick ? open : undefined}
-      onOpenChange={(val) => setOpen(val)}
-      placement="bottomLeft"
-    >
-      <div className={styles.labelPopover}>{label}</div>
-    </Popover>
+    <AppThemeProvider>
+      <Popover
+        content={content}
+        trigger={trigger}
+        open={isClick ? open : undefined}
+        onOpenChange={(val) => setOpen(val)}
+        placement="bottomLeft"
+      >
+        <div className={styles.labelPopover}>{label}</div>
+      </Popover>
+    </AppThemeProvider>
   );
 };

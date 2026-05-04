@@ -8,7 +8,7 @@ export function useGetThemeSystem() {
     () => (localStorage.getItem("theme") as ThemeMode) || "light"
   );
 
-  // Đồng bộ khi mount
+  // Đồng bộ khi mount và lắng nghe sự kiện đổi theme
   useEffect(() => {
     const current = document.documentElement.getAttribute("data-theme") as ThemeMode;
     if (current) {
@@ -16,6 +16,18 @@ export function useGetThemeSystem() {
     } else {
       setThemeSystem(theme); // gán lần đầu
     }
+
+    const handleThemeChange = (e: Event) => {
+      const customEvent = e as CustomEvent<ThemeMode>;
+      if (customEvent.detail) {
+        setTheme(customEvent.detail);
+      }
+    };
+
+    window.addEventListener("changeTheme", handleThemeChange);
+    return () => {
+      window.removeEventListener("changeTheme", handleThemeChange);
+    };
   }, []);
 
   // Hàm toggle nhanh

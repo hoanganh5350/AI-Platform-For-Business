@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Steps, Form, message } from 'antd';
+import { AppThemeProvider } from '../../components/AppThemeProvider/AppThemeProvider';
 import { AdminAPI } from '../../api/client';
 import type { UIFlowNode } from '../../api/types';
 import type { BusinessDataForm, UIBlockForm } from './SetupWizard.types';
@@ -124,24 +125,26 @@ export const SetupWizard: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: 800, margin: '40px auto', padding: '0 20px' }}>
-      <Steps current={currentStep} style={{ marginBottom: 40 }}>
-        <Steps.Step title="Thông tin Doanh nghiệp" />
-        <Steps.Step title="Cấu hình Luồng (UI Flow)" />
-        <Steps.Step title="Hoàn thành" />
-      </Steps>
+    <AppThemeProvider>
+      <div style={{ maxWidth: 800, margin: '40px auto', padding: '0 20px' }}>
+        <Steps current={currentStep} style={{ marginBottom: 40 }}>
+          <Steps.Step title="Thông tin Doanh nghiệp" />
+          <Steps.Step title="Cấu hình Luồng (UI Flow)" />
+          <Steps.Step title="Hoàn thành" />
+        </Steps>
 
-      {currentStep === 0 && (
-        <Step1BusinessInfo form={form1} onNext={handleNextStep1} />
-      )}
+        {currentStep === 0 && (
+          <Step1BusinessInfo form={form1} onNext={handleNextStep1} />
+        )}
 
-      {currentStep === 1 && (
-        <Step2UIFlow form={form2} onBack={() => setCurrentStep(0)} onFinish={handleNextStep2} />
-      )}
+        {currentStep === 1 && (
+          <Step2UIFlow form={form2} onBack={() => setCurrentStep(0)} onFinish={handleNextStep2} />
+        )}
 
-      {currentStep === 2 && (
-        <Step3Success isSubmitting={isSubmitting} businessId={createdBusinessId} />
-      )}
-    </div>
+        {currentStep === 2 && (
+          <Step3Success isSubmitting={isSubmitting} businessId={createdBusinessId} />
+        )}
+      </div>
+    </AppThemeProvider>
   );
 };

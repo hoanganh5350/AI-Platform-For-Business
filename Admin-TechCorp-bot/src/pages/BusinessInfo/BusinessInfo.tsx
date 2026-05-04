@@ -3,6 +3,7 @@ import { Form, Input, Button, Card, Typography, message, Skeleton, Space, Divide
 import { SaveOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { AdminAPI } from '../../api/client';
 import type { BusinessConfig } from '../../api/types';
+import { AppThemeProvider } from '../../components/AppThemeProvider/AppThemeProvider';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -147,93 +148,95 @@ export const BusinessInfo: React.FC = () => {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-      <Title level={3} style={{ marginBottom: 24 }}>Thông tin Doanh nghiệp</Title>
-      <Card bordered={false} style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.05)', width: 'calc(100% - 80px)' }}>
-        <Form form={form} layout="vertical" onFinish={handleSave}>
-          <Form.Item label="Tên doanh nghiệp" name="businessName" rules={[{ required: true }]}>
-            <Input />
-          </Form.Item>
+    <AppThemeProvider>
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <Title level={3} style={{ marginBottom: 24 }}>Thông tin Doanh nghiệp</Title>
+        <Card bordered={false} style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.05)', width: 'calc(100% - 80px)' }}>
+          <Form form={form} layout="vertical" onFinish={handleSave}>
+            <Form.Item label="Tên doanh nghiệp" name="businessName" rules={[{ required: true }]}>
+              <Input />
+            </Form.Item>
 
-          <Form.Item label="Lĩnh vực / Ngành nghề" name="industry">
-            <Input />
-          </Form.Item>
+            <Form.Item label="Lĩnh vực / Ngành nghề" name="industry">
+              <Input />
+            </Form.Item>
 
-          <Form.Item label="Thông tin liên hệ (Email / SĐT)" name="contact">
-            <Input />
-          </Form.Item>
+            <Form.Item label="Thông tin liên hệ (Email / SĐT)" name="contact">
+              <Input />
+            </Form.Item>
 
-          <Form.Item label="Đường dẫn Website" name="website">
-            <Input />
-          </Form.Item>
+            <Form.Item label="Đường dẫn Website" name="website">
+              <Input />
+            </Form.Item>
 
-          <Form.Item
-            label="Mô tả nghiệp vụ / Kiến thức cơ sở cho AI"
-            name="description"
-            rules={[{ required: true }]}
-          >
-            <TextArea rows={8} />
-          </Form.Item>
-
-          {/* ── Dynamic custom description fields ── */}
-          {customFields.length > 0 && (
-            <>
-              <Divider orientation="left" style={{ fontSize: 13, color: '#888' }}>
-                Mô tả bổ sung
-              </Divider>
-              {customFields.map((field) => (
-                <Form.Item
-                  key={field.id}
-                  label={
-                    <Space>
-                      <span>{field.title}</span>
-                      <Button
-                        type="text"
-                        danger
-                        size="small"
-                        icon={<DeleteOutlined />}
-                        onClick={() => handleRemoveField(field.id)}
-                        title="Xóa trường này"
-                      />
-                    </Space>
-                  }
-                  name={['customFields', field.id]}
-                >
-                  <TextArea rows={2} placeholder={`Nhập ${field.title}...`} />
-                </Form.Item>
-              ))}
-            </>
-          )}
-
-          {/* ── Add custom field ── */}
-          <Divider dashed style={{ marginTop: 4 }} />
-          <Text type="secondary" style={{ display: 'block', marginBottom: 8, fontSize: 13 }}>
-            Thêm trường mô tả tùy chỉnh (tuỳ chọn)
-          </Text>
-          <Space.Compact style={{ width: '100%', marginBottom: 24 }}>
-            <Input
-              value={pendingTitle}
-              onChange={(e) => setPendingTitle(e.target.value)}
-              placeholder='Nhập tiêu đề, ví dụ: "Chính sách đổi trả"'
-              onPressEnter={handleAddCustomField}
-            />
-            <Button
-              type="dashed"
-              icon={<PlusOutlined />}
-              onClick={handleAddCustomField}
-              disabled={!pendingTitle.trim()}
+            <Form.Item
+              label="Mô tả nghiệp vụ / Kiến thức cơ sở cho AI"
+              name="description"
+              rules={[{ required: true }]}
             >
-              Tạo thêm mô tả
-            </Button>
-          </Space.Compact>
+              <TextArea rows={8} />
+            </Form.Item>
 
-          <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
-            <Button type="primary" htmlType="submit" loading={submitting} icon={<SaveOutlined />}>
-              Lưu thay đổi
-            </Button>
-          </Space>
-        </Form>
-      </Card>
-    </div>
+            {/* ── Dynamic custom description fields ── */}
+            {customFields.length > 0 && (
+              <>
+                <Divider orientation="left" style={{ fontSize: 13, color: '#888' }}>
+                  Mô tả bổ sung
+                </Divider>
+                {customFields.map((field) => (
+                  <Form.Item
+                    key={field.id}
+                    label={
+                      <Space>
+                        <span>{field.title}</span>
+                        <Button
+                          type="text"
+                          danger
+                          size="small"
+                          icon={<DeleteOutlined />}
+                          onClick={() => handleRemoveField(field.id)}
+                          title="Xóa trường này"
+                        />
+                      </Space>
+                    }
+                    name={['customFields', field.id]}
+                  >
+                    <TextArea rows={2} placeholder={`Nhập ${field.title}...`} />
+                  </Form.Item>
+                ))}
+              </>
+            )}
+
+            {/* ── Add custom field ── */}
+            <Divider dashed style={{ marginTop: 4 }} />
+            <Text type="secondary" style={{ display: 'block', marginBottom: 8, fontSize: 13 }}>
+              Thêm trường mô tả tùy chỉnh (tuỳ chọn)
+            </Text>
+            <Space.Compact style={{ width: '100%', marginBottom: 24 }}>
+              <Input
+                value={pendingTitle}
+                onChange={(e) => setPendingTitle(e.target.value)}
+                placeholder='Nhập tiêu đề, ví dụ: "Chính sách đổi trả"'
+                onPressEnter={handleAddCustomField}
+              />
+              <Button
+                type="dashed"
+                icon={<PlusOutlined />}
+                onClick={handleAddCustomField}
+                disabled={!pendingTitle.trim()}
+              >
+                Tạo thêm mô tả
+              </Button>
+            </Space.Compact>
+
+            <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+              <Button type="primary" htmlType="submit" loading={submitting} icon={<SaveOutlined />}>
+                Lưu thay đổi
+              </Button>
+            </Space>
+          </Form>
+        </Card>
+      </div>
+    </AppThemeProvider>
   );
 };
