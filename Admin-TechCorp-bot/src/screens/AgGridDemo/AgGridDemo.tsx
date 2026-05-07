@@ -271,7 +271,6 @@ export const AgGridDemo = () => {
     };
   }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onGridReady = useCallback(
     (params: {
       api: {

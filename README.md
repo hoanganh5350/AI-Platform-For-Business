@@ -42,13 +42,67 @@ The **AI Chatbot Integration Platform** is a **reusable, multi-tenant SaaS syste
 
 | Feature | Description |
 |---|---|
-| 🏢 **Multi-tenant** | Each business has isolated config, context & conversation history |
+| 🏢 **Multi-tenant & RBAC** | Isolated config per business. Role-based access control (ADMIN_SYSTEM, ADMIN, BUSINESS) |
+| 🛡️ **Approval Workflows** | Built-in Maker-Checker system for user creation and configuration updates |
 | 🧠 **Context-aware AI** | Gemini AI answers only based on your business description — no hallucination |
 | 🗺️ **UI Navigation** | AI suggests specific pages/actions based on the website's structure |
 | 📦 **NPM Library** | Frontend ships as a publishable React library for easy integration |
-| 🔧 **Admin API** | Full REST API to manage business configs programmatically |
+| 🔧 **Admin API & Dashboard** | Full REST API and React UI to manage businesses and system users |
 | 💬 **Session Memory** | Conversations persist per-session with 24h auto-expiry |
 | 🎨 **Fully Customizable** | Brand colors, chatbot name, welcome message, display mode |
+
+---
+
+## 🗄️ Database Schema
+
+The platform uses MongoDB with Mongoose ODMs. Below is the Entity-Relationship mapping for the core collections:
+
+```mermaid
+erDiagram
+    User ||--o| BusinessConfig : "has one (if BUSINESS role)"
+    User {
+        ObjectId _id PK
+        String userName "Unique"
+        String password "Bcrypt Hash"
+        String role "ADMIN_SYSTEM, ADMIN, BUSINESS"
+        String status "Active, Inactive"
+        String businessId "FK to BusinessConfig (Optional)"
+        String businessName
+        Date createdAt
+    }
+
+    BusinessConfig ||--o{ ChatSession : "owns"
+    BusinessConfig {
+        String businessId PK "Unique Custom String"
+        String businessName
+        String description "LLM Knowledge Base"
+        Object uiFlowTree "Nested array of UI Nodes"
+        String chatbotName
+        String welcomeMessage
+        String language
+        String tone
+    }
+
+    ChatSession {
+        ObjectId _id PK
+        String sessionId "Unique per browser"
+        String businessId FK
+        Array history "Array of {role, parts}"
+        Date expiresAt "TTL Index (24h)"
+    }
+
+    User ||--o{ ApprovalRequest : "targetId"
+    ApprovalRequest {
+        ObjectId _id PK
+        String requestId "Unique"
+        ObjectId targetId FK "User being modified"
+        String targetType "ADMIN, BUSINESS"
+        String action "CREATE, UPDATE, DELETE"
+        Object payload "Fields to update"
+        String status "Pending, Approved, Rejected"
+        String createdBy "userName of requester"
+    }
+```
 
 ---
 
@@ -120,13 +174,18 @@ AI-Platform-For-Business/
 │   │   │   ├── errorHandler.js     # Global error handler
 │   │   │   └── validator.js        # Joi request validation
 │   │   ├── models/
+│   │   │   ├── User.js             # RBAC Users (Admin/Business)
 │   │   │   ├── BusinessConfig.js   # Business config schema
-│   │   │   └── ChatSession.js      # Chat session schema (TTL)
+│   │   │   ├── ChatSession.js      # Chat session schema (TTL)
+│   │   │   └── ApprovalRequest.js  # Maker-checker workflow
 │   │   ├── routes/
 │   │   │   ├── index.js            # Route aggregator
-│   │   │   ├── adminRoutes.js      # /api/admin/*
+│   │   │   ├── authRoutes.js       # Login / Register
+│   │   │   ├── userManagementRoutes.js # Approvals & Admin CRUD
+│   │   │   ├── businessRoutes.js   # Self-serve business config
+│   │   │   ├── adminRoutes.js      # System-wide config management
 │   │   │   ├── chatRoutes.js       # /api/chat/*
-│   │   │   └── configRoutes.js     # /api/config/*
+│   │   │   └── configRoutes.js     # Public config endpoint
 │   │   ├── services/
 │   │   │   ├── aiService.js        # Google Gemini integration ⭐
 │   │   │   ├── businessConfigService.js

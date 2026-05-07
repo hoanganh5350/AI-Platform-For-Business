@@ -28,7 +28,7 @@ export function useGetThemeSystem() {
     return () => {
       window.removeEventListener("changeTheme", handleThemeChange);
     };
-  }, []);
+  }, [theme]);
 
   // Hàm toggle nhanh
   const toggleTheme = useCallback(() => {

@@ -3,7 +3,7 @@ import { Popover, List } from "antd";
 import { AppThemeProvider } from "../AppThemeProvider/AppThemeProvider";
 import styles from "./SelectPopover.module.scss";
 
-interface Option {
+export interface Option {
   label: string | ReactNode;
   value: string | number;
 }

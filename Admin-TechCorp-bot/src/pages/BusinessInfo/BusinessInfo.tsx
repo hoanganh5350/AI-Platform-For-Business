@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Form, Input, Button, Card, Typography, message, Skeleton, Space, Divider } from 'antd';
+import { Form, Input, Button, Card, Typography, Skeleton, Space, Divider } from 'antd';
 import { SaveOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { AdminAPI } from '../../api/client';
 import type { BusinessConfig } from '../../api/types';
 import { AppThemeProvider } from '../../components/AppThemeProvider/AppThemeProvider';
+import { useAppNotification } from '../../hooks/useAppNotification';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -33,19 +34,21 @@ export const BusinessInfo: React.FC = () => {
   // ── Custom fields state
   const [pendingTitle, setPendingTitle] = useState('');
   const [customFields, setCustomFields] = useState<CustomField[]>([]);
+  const { notifySuccess, notifyError, contextHolder } = useAppNotification();
 
   useEffect(() => {
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadData = async () => {
     try {
       const businessId = localStorage.getItem('currentBusinessId');
       if (!businessId) {
-        message.error('Không tìm thấy Business ID');
+        notifyError('Không tìm thấy Business ID', 'Vui lòng đăng nhập lại.');
         return;
       }
-      const res = await AdminAPI.getConfig(businessId);
+      const res = await AdminAPI.getBusinessConfig(businessId);
       if (res.success && res.data) {
         setConfig(res.data);
 
@@ -88,7 +91,7 @@ export const BusinessInfo: React.FC = () => {
         });
       }
     } catch {
-      message.error('Lỗi khi tải thông tin doanh nghiệp');
+      notifyError('Lỗi tải dữ liệu', 'Không thể tải thông tin doanh nghiệp. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -124,20 +127,20 @@ export const BusinessInfo: React.FC = () => {
         : values.description;
 
       if (fullDescription !== config.description) {
-        await AdminAPI.updateDescription(config.businessId, fullDescription);
+        await AdminAPI.updateDescriptionJwt(config.businessId, fullDescription);
       }
 
-      await AdminAPI.updateBusinessInfo(config.businessId, {
+      await AdminAPI.updateBusinessInfoJwt(config.businessId, {
         businessName: values.businessName,
         industry: values.industry,
         contact: values.contact,
         website: values.website,
       });
 
-      message.success('Đã lưu thông tin doanh nghiệp thành công!');
+      notifySuccess('Lưu thành công!', 'Thông tin doanh nghiệp đã được cập nhật.');
       loadData();
     } catch {
-      message.error('Lỗi khi lưu thông tin');
+      notifyError('Lưu thất bại', 'Đã có lỗi khi lưu thông tin. Vui lòng kiểm tra lại và thử lại.');
     } finally {
       setSubmitting(false);
     }
@@ -149,6 +152,7 @@ export const BusinessInfo: React.FC = () => {
 
   return (
     <AppThemeProvider>
+      {contextHolder}
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
         <Title level={3} style={{ marginBottom: 24 }}>Thông tin Doanh nghiệp</Title>
         <Card bordered={false} style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.05)', width: 'calc(100% - 80px)' }}>

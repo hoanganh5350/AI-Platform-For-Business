@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Form, Input, Button, Card, Typography, message, Skeleton, Select, Space } from 'antd';
+import { Form, Input, Button, Card, Typography, Skeleton, Select, Space } from 'antd';
 import { PlusOutlined, DeleteOutlined, SaveOutlined } from '@ant-design/icons';
 import { AdminAPI } from '../../api/client';
 import type { BusinessConfig, UIFlowNode } from '../../api/types';
 import { AppThemeProvider } from '../../components/AppThemeProvider/AppThemeProvider';
+import { useAppNotification } from '../../hooks/useAppNotification';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -22,15 +23,16 @@ export const UIFlowConfig: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [config, setConfig] = useState<BusinessConfig | null>(null);
+  const { notifySuccess, notifyError, contextHolder } = useAppNotification();
 
   const loadData = async () => {
     try {
       const businessId = localStorage.getItem('currentBusinessId');
       if (!businessId) {
-        message.error('Không tìm thấy Business ID');
+        notifyError('Không tìm thấy Business ID', 'Vui lòng đăng nhập lại.');
         return;
       }
-      const res = await AdminAPI.getConfig(businessId);
+      const res = await AdminAPI.getBusinessConfig(businessId);
       if (res.success && res.data) {
         setConfig(res.data);
 
@@ -65,7 +67,7 @@ export const UIFlowConfig: React.FC = () => {
         form.setFieldsValue({ blocks: flatBlocks });
       }
     } catch {
-      message.error('Lỗi khi tải cấu hình UI Flow');
+      notifyError('Lỗi tải cấu hình', 'Không thể tải cấu hình UI Flow. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -73,6 +75,7 @@ export const UIFlowConfig: React.FC = () => {
 
   useEffect(() => {
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSave = async (values: { blocks: UIBlockForm[] }) => {
@@ -112,12 +115,12 @@ export const UIFlowConfig: React.FC = () => {
         }
       });
 
-      await AdminAPI.updateUIFlow(config.businessId, tree);
+      await AdminAPI.updateUIFlowJwt(config.businessId, tree);
 
-      message.success('Đã lưu cấu hình Luồng Màn hình thành công!');
+      notifySuccess('Lưu thành công!', 'Luồng màn hình (UI Flow) đã được cập nhật.');
       loadData();
     } catch {
-      message.error('Lỗi khi lưu cấu hình');
+      notifyError('Lưu thất bại', 'Đã có lỗi khi lưu cấu hình luồng màn hình.');
     } finally {
       setSubmitting(false);
     }
@@ -129,6 +132,7 @@ export const UIFlowConfig: React.FC = () => {
 
   return (
     <AppThemeProvider>
+      {contextHolder}
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
         <Title level={3} style={{ marginBottom: 8 }}>Luồng Màn hình (UI Flow)</Title>
         <Text type="secondary" style={{ display: 'block', marginBottom: 24 }}>

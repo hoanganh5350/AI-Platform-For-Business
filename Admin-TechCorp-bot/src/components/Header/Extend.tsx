@@ -1,4 +1,4 @@
-import { SelectPopover } from "../SelectPopover/SelectPopover";
+import { Option, SelectPopover } from "../SelectPopover/SelectPopover";
 import styles from "./Header.module.scss";
 import {
   SettingOutlined,
@@ -60,9 +60,29 @@ const extendHeader = [
   },
 ];
 
+const userOptions = [
+  {
+    label: "Thông tin cá nhân",
+    value: "profile",
+  },
+  {
+    label: "Đăng xuất",
+    value: "logout",
+  },
+];
+
 export const Extend = () => {
   const [lang, setLang] = useState("en");
   const { theme, setTheme } = useGetThemeSystem();
+
+  const handleUserSelect = (e: Option) => {
+    if (e.value === 'logout') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+      localStorage.removeItem('currentBusinessId');
+      window.location.href = '/login';
+    }
+  };
 
   return (
     <div className={styles.containerExtend}>
@@ -98,7 +118,8 @@ export const Extend = () => {
             <UserOutlined />
           </div>
         }
-        options={extendHeader}
+        options={userOptions}
+        onSelect={handleUserSelect}
       />
     </div>
   );

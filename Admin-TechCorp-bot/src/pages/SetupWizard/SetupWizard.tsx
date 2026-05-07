@@ -108,11 +108,16 @@ export const SetupWizard: React.FC = () => {
         uiFlowTree: tree,
       };
 
-      const res = await AdminAPI.createConfig(payload);
+      const res = await AdminAPI.createBusinessConfig(payload);
       if (res.success) {
-        setCreatedBusinessId(businessId);
-        // Save current business globally so they enter the dashboard
-        localStorage.setItem('currentBusinessId', businessId);
+        // Use the authoritative businessId returned by the server (may differ if user already had a businessId in JWT)
+        const confirmedBusinessId = res.businessId || businessId;
+        setCreatedBusinessId(confirmedBusinessId);
+        // Update localStorage with confirmed businessId and the new JWT token (contains updated businessId)
+        localStorage.setItem('currentBusinessId', confirmedBusinessId);
+        if (res.token) {
+          localStorage.setItem('token', res.token);
+        }
       } else {
         message.error('Có lỗi xảy ra khi tạo cấu hình');
       }
