@@ -660,42 +660,50 @@ const { messages, sendMessage, isLoading } = useChatbot({
 
 ---
 
-## 🛠️ Admin Configuration Guide
+## 🛠️ Admin & Business Workflows
 
-### 1. Create a Business Config
+The platform operates on a Maker-Checker permission model with three distinct roles: `ADMIN_SYSTEM`, `ADMIN`, and `BUSINESS`.
 
-```bash
-curl -X POST http://localhost:5000/api/admin/config \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: your-admin-key" \
-  -d '{
-    "businessId": "my-ecommerce-shop",
-    "businessName": "Shopify Store Example",
-    "description": "We sell premium handmade jewelry...",
-    "chatbotName": "Jewel Assistant",
-    "welcomeMessage": "Welcome! Looking for the perfect piece of jewelry?",
-    "language": "auto",
-    "uiFlowTree": [...]
-  }'
-```
+### Role Hierarchy & Permissions
 
-### 2. Embed on Your Website
+| Role | Capabilities | Target Audience |
+|---|---|---|
+| 👑 **ADMIN_SYSTEM** | Root access. Can approve all requests, create ADMINs, modify any business config. | Platform Owner / Super Admin |
+| 🛡️ **ADMIN** | Can view businesses, request to update businesses, and approve BUSINESS registrations. | System Staff / Support |
+| 🏢 **BUSINESS** | Can only manage their own chatbot configuration, UI flow, and description. | The end-user (Company) |
 
-```tsx
-<Chatbot
-  apiUrl="http://localhost:5000/api"
-  businessId="my-ecommerce-shop"
-  mode="float"
-/>
-```
+### 1. Business Registration Workflow (Self-Serve)
 
-### 3. Update Description Anytime
+Businesses can sign up for the platform using the built-in Registration Flow:
+1. Business visits the Login page and submits the "Đăng ký doanh nghiệp" form.
+2. A new `User` is created with role `BUSINESS` and status `Inactive`.
+3. An `ApprovalRequest` is automatically generated for this creation.
+4. An `ADMIN` or `ADMIN_SYSTEM` logs into the Admin Dashboard, views the "Phê duyệt Request" tab, and clicks **Phê duyệt**.
+5. The `BUSINESS` account becomes `Active` and the user can now log in.
 
-```bash
-curl -X PATCH http://localhost:5000/api/admin/config/my-ecommerce-shop/description \
-  -H "x-api-key: your-admin-key" \
-  -d '{ "description": "New updated description..." }'
-```
+### 2. Business Configuration Setup
+
+Once a business logs in for the first time:
+1. They are redirected to the **Setup Wizard**.
+2. They input their Base Information (Name, Industry).
+3. The system creates their `BusinessConfig` and binds the unique `businessId` to their User record.
+4. The system issues a **fresh JWT** containing the synced `businessId`.
+5. They are forwarded to the Dashboard to configure their **UI Flow** and **Custom Instructions**.
+
+### 3. Maker-Checker Update Workflow
+
+To prevent unauthorized tampering, modifications to User Accounts go through an approval process:
+- If an `ADMIN` wants to suspend a `BUSINESS` account (change status to `Inactive`), they submit a modification request.
+- The system generates an `ApprovalRequest` with `action: 'UPDATE'`.
+- Another Admin (or `ADMIN_SYSTEM`) reviews the payload and approves it.
+- Once approved, the fields are merged into the target User document.
+
+### 4. Admin Account Creation
+
+Creating a new Admin account is strictly controlled:
+- Only an `ADMIN` or `ADMIN_SYSTEM` can request to create a new `ADMIN`.
+- The request goes to the `Pending` queue.
+- **Only an `ADMIN_SYSTEM`** can approve the creation of another Admin account.
 
 ---
 
