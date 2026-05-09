@@ -75,7 +75,44 @@ const authController = {
   },
 
   getCurrentUser: async (req, res) => {
-    return res.json({ success: true, data: req.user });
+    try {
+      const user = await User.findById(req.user.userId).select('-password');
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+      return res.json({ success: true, data: user });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ success: false, message: 'Server error' });
+    }
+  },
+
+  changePassword: async (req, res) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ success: false, message: 'Vui lòng cung cấp mật khẩu hiện tại và mật khẩu mới' });
+      }
+
+      const user = await User.findById(req.user.userId);
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng' });
+      }
+
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ success: false, message: 'Mật khẩu hiện tại không chính xác' });
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      user.password = hashedPassword;
+      await user.save();
+
+      return res.json({ success: true, message: 'Đổi mật khẩu thành công' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, message: 'Lỗi server khi đổi mật khẩu' });
+    }
   }
 };
 

@@ -5,6 +5,7 @@ import { AdminAPI } from '../../api/client';
 import type { BusinessConfig } from '../../api/types';
 import { AppThemeProvider } from '../../components/AppThemeProvider/AppThemeProvider';
 import { useAppNotification } from '../../hooks/useAppNotification';
+import { useTranslation } from 'react-i18next';
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -22,6 +23,7 @@ export const ChatbotConfig: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [config, setConfig] = useState<BusinessConfig | null>(null);
   const { notifySuccess, notifyError, contextHolder } = useAppNotification();
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadData();
@@ -80,41 +82,40 @@ export const ChatbotConfig: React.FC = () => {
     <AppThemeProvider>
       {contextHolder}
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-        <Title level={3} style={{ marginBottom: 24 }}>Cấu hình AI Chatbot</Title>
+        <Title level={3} style={{ marginBottom: 24 }}>{t("chatbot.title")}</Title>
         <Card bordered={false} style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.05)', width: 'calc(100% - 80px)' }}>
           <Form form={form} layout="vertical" onFinish={handleSave}>
-            <Form.Item label="Tên Chatbot" name="chatbotName" rules={[{ required: true }]}>
+            <Form.Item label={t("chatbot.name")} name="chatbotName" rules={[{ required: true }]}>
               <Input />
             </Form.Item>
             
-            <Form.Item label="Lời chào mừng" name="welcomeMessage" rules={[{ required: true }]}>
+            <Form.Item label={t("chatbot.welcome")} name="welcomeMessage" rules={[{ required: true }]}>
               <TextArea rows={3} />
             </Form.Item>
 
-            <Form.Item label="Giọng điệu (Tone)" name="tone">
+            <Form.Item label={t("chatbot.tone")} name="tone">
               <Select
                 options={[
-                  { value: 'professional', label: 'Chuyên nghiệp, lịch sự' },
-                  { value: 'friendly', label: 'Thân thiện, nhiệt tình' },
-                  { value: 'casual', label: 'Thoải mái, gần gũi' },
-                  { value: 'formal', label: 'Trang trọng, nghiêm túc' },
+                  { value: 'professional', label: t("chatbot.tone_prof") },
+                  { value: 'friendly', label: t("chatbot.tone_friendly") },
+                  { value: 'humorous', label: t("chatbot.tone_humorous") },
                 ]}
               />
             </Form.Item>
             
-            <Form.Item label="Ngôn ngữ giao tiếp" name="language">
+            <Form.Item label={t("chatbot.lang")} name="language">
               <Select
                 options={[
-                  { value: 'auto', label: 'Tự động phát hiện' },
-                  { value: 'vi', label: 'Tiếng Việt' },
-                  { value: 'en', label: 'English' },
+                  { value: 'auto', label: t("chatbot.lang_auto") },
+                  { value: 'vi', label: t("chatbot.lang_vi") },
+                  { value: 'en', label: t("chatbot.lang_en") },
                 ]}
               />
             </Form.Item>
             
             <Space style={{ width: '100%', justifyContent: 'flex-end', marginTop: 16 }}>
               <Button type="primary" htmlType="submit" loading={submitting} icon={<SaveOutlined />}>
-                Lưu cấu hình
+                {t("common.save")}
               </Button>
             </Space>
           </Form>

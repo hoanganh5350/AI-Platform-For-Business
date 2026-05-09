@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { Table, Button, Space, Typography, Modal, Form, Input, Tag, Divider } from 'antd';
+import React, { useEffect, useState, useMemo } from 'react';
+import { Table, Button, Space, Typography, Modal, Form, Input, Tag, Divider, Select, Card, Row, Col } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { AdminAPI } from '../../api/client';
 import { AppThemeProvider } from '../../components/AppThemeProvider/AppThemeProvider';
 import { useAppNotification } from '../../hooks/useAppNotification';
-import { EyeOutlined, UserAddOutlined } from '@ant-design/icons';
+import { EyeOutlined, UserAddOutlined, SearchOutlined, ReloadOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -13,6 +14,8 @@ interface UserRecord {
   _id: string;
   userName: string;
   role: string;
+  email?: string;
+  phone?: string;
   status: string;
   createdBy: string;
   createdAt: string;
@@ -20,11 +23,16 @@ interface UserRecord {
   updatedAt?: string;
 }
 
+interface FilterState {
+  search: string;
+  status: string;
+  role: string;
+}
+
 export const AdminUserView: React.FC = () => {
   const [data, setData] = useState<UserRecord[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Edit modal state
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState<UserRecord | null>(null);
   const [editForm] = Form.useForm();
@@ -33,6 +41,9 @@ export const AdminUserView: React.FC = () => {
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [createLoading, setCreateLoading] = useState(false);
   const [createForm] = Form.useForm();
+  const { t } = useTranslation();
+
+  const [filters, setFilters] = useState<FilterState>({ search: '', status: '', role: '' });
 
   const fetchData = async () => {
     setLoading(true);
@@ -43,7 +54,7 @@ export const AdminUserView: React.FC = () => {
       }
     } catch (err) {
       console.error(err);
-      notifyError('Lỗi tải dữ liệu', 'Không thể tải danh sách Admin. Vui lòng thử lại.');
+      notifyError(t('common.error'), 'Không thể tải danh sách Admin. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -55,7 +66,11 @@ export const AdminUserView: React.FC = () => {
 
   const handleEdit = (record: UserRecord) => {
     setEditingRecord(record);
-    editForm.setFieldsValue({ status: record.status });
+    editForm.setFieldsValue({
+      status: record.status,
+      email: record.email,
+      phone: record.phone,
+    });
     setIsEditModalVisible(true);
   };
 
@@ -101,26 +116,43 @@ export const AdminUserView: React.FC = () => {
     }
   };
 
+  const filteredData = useMemo(() => {
+    return data.filter((item) => {
+      const matchSearch = !filters.search || item.userName.toLowerCase().includes(filters.search.toLowerCase());
+      const matchStatus = !filters.status || item.status === filters.status;
+      const matchRole = !filters.role || item.role === filters.role;
+      return matchSearch && matchStatus && matchRole;
+    });
+  }, [data, filters]);
+
+  const handleResetFilters = () => setFilters({ search: '', status: '', role: '' });
+
   const columns: ColumnsType<UserRecord> = [
-    { title: 'Tên đăng nhập', dataIndex: 'userName', key: 'userName' },
+    { title: t('admin.username'), dataIndex: 'userName', key: 'userName' },
     {
-      title: 'Vai trò', dataIndex: 'role', key: 'role',
+      title: t('admin.role'),
+      dataIndex: 'role',
+      key: 'role',
       render: (role: string) => <Tag color={role === 'ADMIN_SYSTEM' ? 'red' : 'blue'}>{role}</Tag>,
     },
     {
-      title: 'Trạng thái', dataIndex: 'status', key: 'status',
+      title: t('common.status'),
+      dataIndex: 'status',
+      key: 'status',
       render: (status: string) => <Tag color={status === 'Active' ? 'green' : 'default'}>{status}</Tag>,
     },
+    { title: t('admin.email'), dataIndex: 'email', key: 'email', render: (val: string) => val || '' },
+    { title: t('admin.phone'), dataIndex: 'phone', key: 'phone', render: (val: string) => val || '' },
     { title: 'Người tạo', dataIndex: 'createdBy', key: 'createdBy' },
-    { title: 'Ngày tạo', dataIndex: 'createdAt', key: 'createdAt', render: (val: string) => dayjs(val).format('DD/MM/YYYY HH:mm') },
+    { title: t('admin.created_at'), dataIndex: 'createdAt', key: 'createdAt', render: (val: string) => dayjs(val).format('DD/MM/YYYY HH:mm') },
     { title: 'Người cập nhật', dataIndex: 'updatedBy', key: 'updatedBy' },
     { title: 'Ngày cập nhật', dataIndex: 'updatedAt', key: 'updatedAt', render: (val: string) => val ? dayjs(val).format('DD/MM/YYYY HH:mm') : '' },
     {
-      title: 'Hành động',
+      title: t('common.action'),
       key: 'action',
       render: (_: unknown, record: UserRecord) => (
         <Space size="middle">
-          <Button icon={<EyeOutlined />} size="small" onClick={() => handleEdit(record)}>Xem / Sửa</Button>
+          <Button icon={<EyeOutlined />} size="small" onClick={() => handleEdit(record)}>{t('common.edit')}</Button>
         </Space>
       ),
     },
@@ -130,18 +162,67 @@ export const AdminUserView: React.FC = () => {
     <AppThemeProvider>
       {contextHolder}
       <div style={{ padding: 24 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-          <Title level={3} style={{ margin: 0 }}>Quản lý Account Admin</Title>
-          <Button
-            type="primary"
-            icon={<UserAddOutlined />}
-            onClick={() => setIsCreateModalVisible(true)}
-          >
-            Tạo tài khoản Admin
-          </Button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <Title level={3} style={{ margin: 0 }}>{t('admin.admin_view')}</Title>
+          <Space>
+            <Button icon={<ReloadOutlined />} onClick={fetchData} loading={loading}>Làm mới</Button>
+            <Button type="primary" icon={<UserAddOutlined />} onClick={() => setIsCreateModalVisible(true)}>
+              {t('admin.create_admin')}
+            </Button>
+          </Space>
         </div>
 
-        <Table columns={columns} dataSource={data} rowKey="_id" loading={loading} />
+        {/* Filter Bar */}
+        <Card title={t('admin.filter_title')} size="small" style={{ marginBottom: 16 }}>
+          <Row gutter={[16, 16]}>
+            <Col xs={24} sm={12} md={8}>
+              <Input
+                prefix={<SearchOutlined />}
+                placeholder={t('admin.filter_placeholder_search')}
+                value={filters.search}
+                onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
+                allowClear
+              />
+            </Col>
+            <Col xs={24} sm={12} md={8}>
+              <Select
+                style={{ width: '100%' }}
+                value={filters.status || undefined}
+                onChange={(val) => setFilters((f) => ({ ...f, status: val ?? '' }))}
+                placeholder={t('admin.filter_status_all')}
+                allowClear
+              >
+                <Select.Option value="Active"><Tag color="green">Active</Tag></Select.Option>
+                <Select.Option value="Inactive"><Tag color="default">Inactive</Tag></Select.Option>
+              </Select>
+            </Col>
+            <Col xs={24} sm={12} md={8}>
+              <Select
+                style={{ width: '100%' }}
+                value={filters.role || undefined}
+                onChange={(val) => setFilters((f) => ({ ...f, role: val ?? '' }))}
+                placeholder={t('admin.filter_role_all')}
+                allowClear
+              >
+                <Select.Option value="ADMIN_SYSTEM"><Tag color="red">ADMIN_SYSTEM</Tag></Select.Option>
+                <Select.Option value="ADMIN"><Tag color="blue">ADMIN</Tag></Select.Option>
+              </Select>
+            </Col>
+          </Row>
+          <Row justify="end" style={{ marginTop: 16 }}>
+            <Col>
+              <Button onClick={handleResetFilters}>{t('admin.filter_reset')}</Button>
+            </Col>
+          </Row>
+        </Card>
+
+        <Table
+          columns={columns}
+          dataSource={filteredData}
+          rowKey="_id"
+          loading={loading}
+          pagination={{ pageSize: 10, showTotal: (total) => `Tổng ${total} tài khoản` }}
+        />
 
         {/* Edit Modal */}
         <Modal
@@ -152,8 +233,17 @@ export const AdminUserView: React.FC = () => {
           okText="Tạo Request Update"
         >
           <Form form={editForm} layout="vertical">
-            <Form.Item label="Trạng thái" name="status" rules={[{ required: true }]}>
-              <Input placeholder="Active hoặc Inactive" />
+            <Form.Item label={t('admin.filter_status')} name="status" rules={[{ required: true }]}>
+              <Select>
+                <Select.Option value="Active">Active</Select.Option>
+                <Select.Option value="Inactive">Inactive</Select.Option>
+              </Select>
+            </Form.Item>
+            <Form.Item label={t('admin.email')} name="email">
+              <Input placeholder="Nhập email" type="email" />
+            </Form.Item>
+            <Form.Item label={t('admin.phone')} name="phone">
+              <Input placeholder="Nhập số điện thoại" />
             </Form.Item>
           </Form>
         </Modal>

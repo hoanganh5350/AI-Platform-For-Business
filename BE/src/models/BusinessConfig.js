@@ -61,10 +61,16 @@ const businessConfigSchema = new mongoose.Schema(
       maxlength: 100,
       default: '',
     },
-    contact: {
+    email: {
       type: String,
       trim: true,
-      maxlength: 500,
+      maxlength: 255,
+      default: '',
+    },
+    phone: {
+      type: String,
+      trim: true,
+      maxlength: 50,
       default: '',
     },
     website: {

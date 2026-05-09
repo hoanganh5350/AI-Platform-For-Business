@@ -7,6 +7,7 @@ import { ROUTES } from '../../router/constants';
 import { UserRole } from '../../utils/types/user';
 import { AppThemeProvider } from '../../components/AppThemeProvider/AppThemeProvider';
 import { useAppNotification } from '../../hooks/useAppNotification';
+import { useTranslation } from 'react-i18next';
 
 const { Title, Text } = Typography;
 
@@ -19,6 +20,7 @@ export const Login: React.FC = () => {
   const [loginForm] = Form.useForm();
   const [registerForm] = Form.useForm();
   const { notifySuccess, notifyError, contextHolder } = useAppNotification();
+  const { t } = useTranslation();
 
   const handleLogin = async (values: Record<string, unknown>) => {
     setLoginLoading(true);
@@ -80,14 +82,14 @@ export const Login: React.FC = () => {
 
   const loginTab = (
     <Form form={loginForm} layout="vertical" onFinish={handleLogin} style={{ marginTop: 8 }}>
-      <Form.Item name="userName" rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập' }]}>
-        <Input size="large" prefix={<UserOutlined style={{ color: '#bbb' }} />} placeholder="Tên đăng nhập" />
+      <Form.Item name="userName" rules={[{ required: true, message: t("login.req_username") }]}>
+        <Input size="large" prefix={<UserOutlined style={{ color: '#bbb' }} />} placeholder={t("login.username")} />
       </Form.Item>
-      <Form.Item name="password" rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}>
-        <Input.Password size="large" prefix={<LockOutlined style={{ color: '#bbb' }} />} placeholder="Mật khẩu" />
+      <Form.Item name="password" rules={[{ required: true, message: t("login.req_password") }]}>
+        <Input.Password size="large" prefix={<LockOutlined style={{ color: '#bbb' }} />} placeholder={t("login.password")} />
       </Form.Item>
       <Button type="primary" htmlType="submit" size="large" block loading={loginLoading} style={{ marginTop: 4 }}>
-        Đăng nhập
+        {t("login.login_btn")}
       </Button>
     </Form>
   );
@@ -95,35 +97,35 @@ export const Login: React.FC = () => {
   const registerTab = registerSuccess ? (
     <Result
       status="success"
-      title="Đăng ký thành công!"
-      subTitle="Tài khoản của bạn đang chờ quản trị viên phê duyệt. Bạn sẽ có thể đăng nhập sau khi được kích hoạt."
+      title={t("login.register_success_title")}
+      subTitle={t("login.register_success_subtitle")}
       extra={[
         <Button key="login" type="primary" onClick={() => { setRegisterSuccess(false); setActiveTab('login'); }}>
-          Quay lại đăng nhập
+          {t("login.back_to_login")}
         </Button>,
       ]}
     />
   ) : (
     <Form form={registerForm} layout="vertical" onFinish={handleRegister} style={{ marginTop: 8 }}>
-      <Form.Item name="businessName" rules={[{ required: true, message: 'Vui lòng nhập tên doanh nghiệp' }]}>
-        <Input size="large" prefix={<ShopOutlined style={{ color: '#bbb' }} />} placeholder="Tên doanh nghiệp" />
+      <Form.Item name="businessName" rules={[{ required: true, message: t("login.req_business") }]}>
+        <Input size="large" prefix={<ShopOutlined style={{ color: '#bbb' }} />} placeholder={t("login.business_name")} />
       </Form.Item>
-      <Form.Item name="userName" rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập' }]}>
-        <Input size="large" prefix={<UserOutlined style={{ color: '#bbb' }} />} placeholder="Tên đăng nhập" />
+      <Form.Item name="userName" rules={[{ required: true, message: t("login.req_username") }]}>
+        <Input size="large" prefix={<UserOutlined style={{ color: '#bbb' }} />} placeholder={t("login.username")} />
       </Form.Item>
-      <Form.Item name="password" rules={[{ required: true, min: 6, message: 'Mật khẩu ít nhất 6 ký tự' }]}>
-        <Input.Password size="large" prefix={<LockOutlined style={{ color: '#bbb' }} />} placeholder="Mật khẩu" />
+      <Form.Item name="password" rules={[{ required: true, min: 6, message: t("login.req_password_min") }]}>
+        <Input.Password size="large" prefix={<LockOutlined style={{ color: '#bbb' }} />} placeholder={t("login.password")} />
       </Form.Item>
-      <Form.Item name="confirmPassword" rules={[{ required: true, message: 'Vui lòng xác nhận mật khẩu' }]}>
-        <Input.Password size="large" prefix={<LockOutlined style={{ color: '#bbb' }} />} placeholder="Xác nhận mật khẩu" />
+      <Form.Item name="confirmPassword" rules={[{ required: true, message: t("login.req_confirm") }]}>
+        <Input.Password size="large" prefix={<LockOutlined style={{ color: '#bbb' }} />} placeholder={t("login.confirm_password")} />
       </Form.Item>
       <div style={{ marginBottom: 16, padding: '10px 12px', background: '#fffbe6', border: '1px solid #ffe58f', borderRadius: 6 }}>
         <Text style={{ fontSize: 12, color: '#ad6800' }}>
-          ⏳ Tài khoản sẽ được kích hoạt sau khi quản trị viên phê duyệt.
+          {t("login.pending_notice")}
         </Text>
       </div>
       <Button type="primary" htmlType="submit" size="large" block loading={registerLoading}>
-        Gửi yêu cầu đăng ký
+        {t("login.register_btn")}
       </Button>
     </Form>
   );
@@ -133,17 +135,17 @@ export const Login: React.FC = () => {
       {contextHolder}
       <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'var(--background)' }}>
         <Card style={{ width: 440, boxShadow: '0 8px 24px rgba(0,0,0,0.12)', borderRadius: 12 }} bordered={false}>
-          <Title level={3} style={{ textAlign: 'center', marginBottom: 4 }}>AI Chatbot Platform</Title>
+          <Title level={3} style={{ textAlign: 'center', marginBottom: 4 }}>{t("login.title")}</Title>
           <Text type="secondary" style={{ display: 'block', textAlign: 'center', marginBottom: 24 }}>
-            Nền tảng quản lý chatbot thông minh
+            {t("login.subtitle")}
           </Text>
           <Tabs
             activeKey={activeTab}
             onChange={(key) => setActiveTab(key)}
             centered
             items={[
-              { key: 'login', label: 'Đăng nhập', children: loginTab },
-              { key: 'register', label: 'Đăng ký doanh nghiệp', children: registerTab },
+              { key: 'login', label: t("login.tab_login"), children: loginTab },
+              { key: 'register', label: t("login.tab_register"), children: registerTab },
             ]}
           />
         </Card>

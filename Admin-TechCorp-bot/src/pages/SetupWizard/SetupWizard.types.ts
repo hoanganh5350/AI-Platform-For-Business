@@ -2,7 +2,8 @@
 export interface BusinessDataForm {
   businessName: string;
   representative?: string;
-  contact?: string;
+  email?: string;
+  phone?: string;
   industry?: string;
   website?: string;
   description: string;

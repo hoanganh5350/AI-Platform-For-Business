@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Input, Button, Card, Typography, Skeleton, Space, Divider } from 'antd';
 import { SaveOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { AdminAPI } from '../../api/client';
 import type { BusinessConfig } from '../../api/types';
 import { AppThemeProvider } from '../../components/AppThemeProvider/AppThemeProvider';
 import { useAppNotification } from '../../hooks/useAppNotification';
+import { useTranslation } from 'react-i18next';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -18,7 +19,8 @@ interface CustomField {
 interface BusinessInfoForm {
   businessName: string;
   industry?: string;
-  contact?: string;
+  email?: string;
+  phone?: string;
   website?: string;
   description: string;
   /** Dynamic extra sections keyed by field id */
@@ -30,16 +32,26 @@ export const BusinessInfo: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [config, setConfig] = useState<BusinessConfig | null>(null);
+  const [submittable, setSubmittable] = useState(false);
+  const values = Form.useWatch([], form);
 
   // ── Custom fields state
   const [pendingTitle, setPendingTitle] = useState('');
   const [customFields, setCustomFields] = useState<CustomField[]>([]);
   const { notifySuccess, notifyError, contextHolder } = useAppNotification();
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    form.validateFields({ validateOnly: true }).then(
+      () => setSubmittable(true),
+      () => setSubmittable(false)
+    );
+  }, [values, form]);
 
   const loadData = async () => {
     try {
@@ -84,7 +96,8 @@ export const BusinessInfo: React.FC = () => {
         form.setFieldsValue({
           businessName: res.data.businessName,
           industry: res.data.industry,
-          contact: res.data.contact,
+          email: res.data.email,
+          phone: res.data.phone,
           website: res.data.website,
           description: baseDesc,
           customFields: restoredValues,
@@ -133,7 +146,8 @@ export const BusinessInfo: React.FC = () => {
       await AdminAPI.updateBusinessInfoJwt(config.businessId, {
         businessName: values.businessName,
         industry: values.industry,
-        contact: values.contact,
+        email: values.email,
+        phone: values.phone,
         website: values.website,
       });
 
@@ -154,29 +168,53 @@ export const BusinessInfo: React.FC = () => {
     <AppThemeProvider>
       {contextHolder}
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-        <Title level={3} style={{ marginBottom: 24 }}>Thông tin Doanh nghiệp</Title>
+        <Title level={3} style={{ marginBottom: 24 }}>{t("business.title")}</Title>
         <Card bordered={false} style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.05)', width: 'calc(100% - 80px)' }}>
           <Form form={form} layout="vertical" onFinish={handleSave}>
-            <Form.Item label="Tên doanh nghiệp" name="businessName" rules={[{ required: true }]}>
+            <Form.Item 
+              label={t("setup.business_name")}
+              name="businessName" 
+              rules={[{ required: true, message: 'Vui lòng nhập tên doanh nghiệp' }]}
+            >
               <Input />
             </Form.Item>
 
-            <Form.Item label="Lĩnh vực / Ngành nghề" name="industry">
+            <Form.Item 
+              label={t("setup.industry")}
+              name="industry"
+              rules={[{ required: true, message: 'Vui lòng nhập lĩnh vực / ngành nghề' }]}
+            >
               <Input />
             </Form.Item>
 
-            <Form.Item label="Thông tin liên hệ (Email / SĐT)" name="contact">
+            <Form.Item 
+              label={t("admin.email", "Email")}
+              name="email"
+              rules={[{ required: true, message: 'Vui lòng nhập email', type: 'email' }]}
+            >
               <Input />
             </Form.Item>
 
-            <Form.Item label="Đường dẫn Website" name="website">
+            <Form.Item 
+              label={t("admin.phone", "Số điện thoại")}
+              name="phone"
+              rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item 
+              label={t("setup.website")}
+              name="website"
+              rules={[{ required: true, message: 'Vui lòng nhập đường dẫn website' }]}
+            >
               <Input />
             </Form.Item>
 
             <Form.Item
-              label="Mô tả nghiệp vụ / Kiến thức cơ sở cho AI"
+              label={t("business.desc_label")}
               name="description"
-              rules={[{ required: true }]}
+              rules={[{ required: true, message: 'Vui lòng nhập mô tả nghiệp vụ' }]}
             >
               <TextArea rows={8} />
             </Form.Item>
@@ -185,7 +223,7 @@ export const BusinessInfo: React.FC = () => {
             {customFields.length > 0 && (
               <>
                 <Divider orientation="left" style={{ fontSize: 13, color: '#888' }}>
-                  Mô tả bổ sung
+                  {t("setup.custom_fields")}
                 </Divider>
                 {customFields.map((field) => (
                   <Form.Item
@@ -204,6 +242,7 @@ export const BusinessInfo: React.FC = () => {
                       </Space>
                     }
                     name={['customFields', field.id]}
+                    rules={[{ required: true, message: `Vui lòng nhập ${field.title}` }]}
                   >
                     <TextArea rows={2} placeholder={`Nhập ${field.title}...`} />
                   </Form.Item>
@@ -214,7 +253,7 @@ export const BusinessInfo: React.FC = () => {
             {/* ── Add custom field ── */}
             <Divider dashed style={{ marginTop: 4 }} />
             <Text type="secondary" style={{ display: 'block', marginBottom: 8, fontSize: 13 }}>
-              Thêm trường mô tả tùy chỉnh (tuỳ chọn)
+              {t("setup.add_custom")}
             </Text>
             <Space.Compact style={{ width: '100%', marginBottom: 24 }}>
               <Input
@@ -229,13 +268,13 @@ export const BusinessInfo: React.FC = () => {
                 onClick={handleAddCustomField}
                 disabled={!pendingTitle.trim()}
               >
-                Tạo thêm mô tả
+                {t("setup.add_desc_btn")}
               </Button>
             </Space.Compact>
 
             <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
-              <Button type="primary" htmlType="submit" loading={submitting} icon={<SaveOutlined />}>
-                Lưu thay đổi
+              <Button type="primary" htmlType="submit" loading={submitting} icon={<SaveOutlined />} disabled={!submittable}>
+                {t("common.save")}
               </Button>
             </Space>
           </Form>

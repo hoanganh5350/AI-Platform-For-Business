@@ -213,7 +213,7 @@ const userManagementController = {
   // ─── GET REQUESTS ──────────────────────────────────────────────────────────
   getApprovalRequests: async (req, res) => {
     try {
-      const requests = await ApprovalRequest.find().populate('targetId', 'userName email role').sort({ createdAt: -1 });
+      const requests = await ApprovalRequest.find().populate('targetId').sort({ createdAt: -1 });
       res.json({ success: true, data: requests });
     } catch (err) {
       console.error(err);

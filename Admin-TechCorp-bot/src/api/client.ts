@@ -46,6 +46,14 @@ export const AdminAPI = {
     const res = await api.post('/users-management/create-admin', data);
     return res.data;
   },
+  changePassword: async (data: { currentPassword: string; newPassword: string }) => {
+    const res = await api.post('/auth/change-password', data);
+    return res.data;
+  },
+  getCurrentUser: async () => {
+    const res = await api.get('/auth/me');
+    return res.data;
+  },
 
   // ─── BUSINESS CONFIG ───
   getConfigs: async () => {

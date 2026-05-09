@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Input, Button, Card, Select, Typography, Space } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { FormInstance } from 'antd/es/form';
 import type { UIBlockForm } from '../SetupWizard.types';
+import { useTranslation } from 'react-i18next';
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -14,14 +15,25 @@ interface Step2UIFlowProps {
 }
 
 export const Step2UIFlow: React.FC<Step2UIFlowProps> = ({ form, onBack, onFinish }) => {
+  const [submittable, setSubmittable] = useState(false);
+  const values = Form.useWatch([], form);
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    form.validateFields({ validateOnly: true }).then(
+      () => setSubmittable(true),
+      () => setSubmittable(false)
+    );
+  }, [values, form]);
+
   return (
     <Card
-      title="Mô tả luồng màn hình doanh nghiệp của bạn"
+      title={t("setup.step2_title")}
       bordered={false}
       style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
     >
       <Text type="secondary" style={{ display: 'block', marginBottom: 24 }}>
-        Thêm các khối chức năng (BlockFlow) để mô tả cách người dùng điều hướng trên website của bạn.
+        {t("setup.step2_desc")}
       </Text>
       <Form
         form={form}
@@ -52,10 +64,10 @@ export const Step2UIFlow: React.FC<Step2UIFlowProps> = ({ form, onBack, onFinish
                   <Form.Item
                     {...restField}
                     name={[name, 'name']}
-                    label="Tên chức năng"
+                    label={t("setup.block_name")}
                     rules={[{ required: true, message: 'Vui lòng nhập tên chức năng' }]}
                   >
-                    <Input placeholder="Ví dụ: Xem sản phẩm" />
+                    <Input />
                   </Form.Item>
 
                   {/* Chức năng cha */}
@@ -80,17 +92,16 @@ export const Step2UIFlow: React.FC<Step2UIFlowProps> = ({ form, onBack, onFinish
                         <Form.Item
                           {...restField}
                           name={[name, 'parent']}
-                          label="Chức năng cha"
+                          label={t("setup.block_parent")}
                         >
                           <Select
-                            placeholder="Chọn chức năng cha"
                             options={availableParents}
                             allowClear
                           />
                         </Form.Item>
                       ) : (
                         <Text type="secondary" style={{ display: 'block', marginBottom: 24 }}>
-                          (Đây là block gốc — màn hình chính, không có chức năng cha)
+                          {t("setup.root_note")}
                         </Text>
                       );
                     }}
@@ -100,9 +111,10 @@ export const Step2UIFlow: React.FC<Step2UIFlowProps> = ({ form, onBack, onFinish
                   <Form.Item
                     {...restField}
                     name={[name, 'description']}
-                    label="Mô tả chi tiết"
+                    label={t("setup.block_desc")}
+                    rules={[{ required: true, message: 'Vui lòng mô tả chức năng này' }]}
                   >
-                    <TextArea rows={2} placeholder="Mô tả người dùng làm gì ở đây" />
+                    <TextArea rows={2} />
                   </Form.Item>
 
                   {/* Đường dẫn tuyệt đối — optional */}
@@ -111,21 +123,21 @@ export const Step2UIFlow: React.FC<Step2UIFlowProps> = ({ form, onBack, onFinish
                     name={[name, 'absoluteUrl']}
                     label={
                       <span>
-                        Đường dẫn tuyệt đối{' '}
+                        {t("setup.block_url")}{' '}
                         <Text type="secondary" style={{ fontSize: 12, fontWeight: 400 }}>
-                          (tuỳ chọn — link trực tiếp vào chức năng này)
+                          (tuỳ chọn)
                         </Text>
                       </span>
                     }
                   >
-                    <Input placeholder="https://example.com/products hoặc /products" />
+                    <Input />
                   </Form.Item>
                 </Card>
               ))}
 
               <Form.Item>
                 <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                  Thêm chức năng mới
+                  {t("setup.add_block")}
                 </Button>
               </Form.Item>
             </>
@@ -133,9 +145,9 @@ export const Step2UIFlow: React.FC<Step2UIFlowProps> = ({ form, onBack, onFinish
         </Form.List>
 
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-          <Button onClick={onBack}>Quay lại</Button>
-          <Button type="primary" onClick={onFinish}>
-            Hoàn thành cấu hình
+          <Button onClick={onBack}>{t("common.back")}</Button>
+          <Button type="primary" onClick={onFinish} disabled={!submittable}>
+            {t("setup.finish_config")}
           </Button>
         </Space>
       </Form>

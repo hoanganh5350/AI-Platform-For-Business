@@ -9,5 +9,6 @@ router.post('/login', authController.login);
 router.post('/seed', authController.seedSystemAdmin);
 router.post('/register-business', userManagementController.registerBusiness); // Public — no auth needed
 router.get('/me', authMiddleware, authController.getCurrentUser);
+router.post('/change-password', authMiddleware, authController.changePassword);
 
 module.exports = router;

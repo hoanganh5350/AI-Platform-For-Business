@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Input, Button, Card, Divider, Space, Typography } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { FormInstance } from 'antd/es/form';
+import { useTranslation } from 'react-i18next';
 
 const { TextArea } = Input;
 const { Text } = Typography;
@@ -19,6 +20,16 @@ interface CustomField {
 export const Step1BusinessInfo: React.FC<Step1BusinessInfoProps> = ({ form, onNext }) => {
   const [pendingTitle, setPendingTitle] = useState('');
   const [customFields, setCustomFields] = useState<CustomField[]>([]);
+  const [submittable, setSubmittable] = useState(false);
+  const values = Form.useWatch([], form);
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    form.validateFields({ validateOnly: true }).then(
+      () => setSubmittable(true),
+      () => setSubmittable(false)
+    );
+  }, [values, form]);
 
   const handleAddCustomField = () => {
     const trimmed = pendingTitle.trim();
@@ -38,44 +49,72 @@ export const Step1BusinessInfo: React.FC<Step1BusinessInfoProps> = ({ form, onNe
 
   return (
     <Card
-      title="Khởi tạo Chatbot cho Doanh nghiệp"
+      title={t("setup.step1_title")}
       bordered={false}
       style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
     >
       <Form form={form} layout="vertical">
         <Form.Item
-          label="Tên doanh nghiệp"
+          label={t("setup.business_name")}
           name="businessName"
           rules={[{ required: true, message: 'Vui lòng nhập tên doanh nghiệp' }]}
         >
           <Input placeholder="Nhập tên doanh nghiệp của bạn" />
         </Form.Item>
 
-        <Form.Item label="Người đại diện" name="representative">
-          <Input placeholder="Tên người đại diện" />
+        <Form.Item 
+          label={t("setup.rep")}
+          name="representative"
+          rules={[{ required: true, message: 'Vui lòng nhập tên người đại diện' }]}
+        >
+          <Input />
         </Form.Item>
 
-        <Form.Item label="Thông tin liên lạc" name="contact">
-          <Input placeholder="Email, Số điện thoại..." />
+        <Form.Item 
+          label={t("admin.email", "Email")}
+          name="email"
+          rules={[{ required: true, message: 'Vui lòng nhập email', type: 'email' }]}
+        >
+          <Input />
         </Form.Item>
 
-        <Form.Item label="Lĩnh vực/Ngành nghề" name="industry">
-          <Input placeholder="Ví dụ: Công nghệ, Bán lẻ, Giáo dục" />
+        <Form.Item 
+          label={t("admin.phone", "Số điện thoại")}
+          name="phone"
+          rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}
+        >
+          <Input />
         </Form.Item>
 
-        <Form.Item label="Đường dẫn Website" name="website">
+        <Form.Item 
+          label={t("setup.industry")}
+          name="industry"
+          rules={[{ required: true, message: 'Vui lòng nhập lĩnh vực/ngành nghề' }]}
+        >
+          <Input />
+        </Form.Item>
+
+        <Form.Item 
+          label={t("setup.website")}
+          name="website"
+          rules={[{ required: true, message: 'Vui lòng nhập đường dẫn website' }]}
+        >
           <Input placeholder="https://..." />
         </Form.Item>
 
         <Form.Item
-          label="Mô tả nghiệp vụ"
+          label={t("setup.desc")}
           name="description"
           rules={[{ required: true, message: 'Vui lòng mô tả nghiệp vụ' }]}
         >
-          <TextArea rows={4} placeholder="Mô tả các sản phẩm, dịch vụ, và quy trình chính" />
+          <TextArea rows={4} />
         </Form.Item>
 
-        <Form.Item label="Mục tiêu của chatbot" name="goal">
+        <Form.Item 
+          label={t("setup.goal")}
+          name="goal"
+          rules={[{ required: true, message: 'Vui lòng nhập mục tiêu của chatbot' }]}
+        >
           <Input placeholder="Ví dụ: Chăm sóc khách hàng, Tư vấn bán hàng" />
         </Form.Item>
 
@@ -83,7 +122,7 @@ export const Step1BusinessInfo: React.FC<Step1BusinessInfoProps> = ({ form, onNe
         {customFields.length > 0 && (
           <>
             <Divider orientation="left" style={{ fontSize: 13, color: '#888' }}>
-              Mô tả bổ sung
+              {t("setup.custom_fields")}
             </Divider>
             {customFields.map((field) => (
               <Form.Item
@@ -102,6 +141,7 @@ export const Step1BusinessInfo: React.FC<Step1BusinessInfoProps> = ({ form, onNe
                   </Space>
                 }
                 name={['customFields', field.id]}
+                rules={[{ required: true, message: `Vui lòng nhập ${field.title}` }]}
               >
                 <TextArea rows={2} placeholder={`Nhập ${field.title}...`} />
               </Form.Item>
@@ -112,7 +152,7 @@ export const Step1BusinessInfo: React.FC<Step1BusinessInfoProps> = ({ form, onNe
         {/* ── Add custom field section ── */}
         <Divider dashed style={{ marginTop: 4 }} />
         <Text type="secondary" style={{ display: 'block', marginBottom: 8, fontSize: 13 }}>
-          Thêm trường mô tả tùy chỉnh (tuỳ chọn)
+          {t("setup.add_custom")}
         </Text>
         <Space.Compact style={{ width: '100%', marginBottom: 24 }}>
           <Input
@@ -127,12 +167,12 @@ export const Step1BusinessInfo: React.FC<Step1BusinessInfoProps> = ({ form, onNe
             onClick={handleAddCustomField}
             disabled={!pendingTitle.trim()}
           >
-            Tạo thêm mô tả
+            {t("setup.add_desc_btn")}
           </Button>
         </Space.Compact>
 
-        <Button type="primary" onClick={onNext} block size="large">
-          Tiếp tục
+        <Button type="primary" onClick={onNext} block size="large" disabled={!submittable}>
+          {t("common.next")}
         </Button>
       </Form>
     </Card>

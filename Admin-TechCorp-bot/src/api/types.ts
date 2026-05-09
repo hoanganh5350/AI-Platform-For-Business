@@ -17,7 +17,8 @@ export interface BusinessConfig {
   businessId: string;
   businessName: string;
   industry?: string;
-  contact?: string;
+  email?: string;
+  phone?: string;
   website?: string;
   tone?: BusinessTone;
   description: string;

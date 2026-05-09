@@ -10,7 +10,7 @@ import {
 import { ROUTES } from "../../router/constants";
 import { UserRole } from "../../utils/types/user";
 
-export const getMenuItems = (): ItemType[] => {
+export const getMenuItems = (t: (key: string) => string): ItemType[] => {
   const role = localStorage.getItem("role") as UserRole;
 
   if (role === UserRole.ADMIN_SYSTEM || role === UserRole.ADMIN) {
@@ -18,22 +18,22 @@ export const getMenuItems = (): ItemType[] => {
       {
         key: ROUTES.ADMIN_DASHBOARD,
         icon: <AppstoreOutlined />,
-        label: "Bảng điều khiển",
+        label: t("menu.dashboard"),
       },
       {
         key: ROUTES.ADMIN_BUSINESS_VIEW,
         icon: <ContainerOutlined />,
-        label: "Quản lý Business",
+        label: t("menu.business_management"),
       },
       {
         key: ROUTES.ADMIN_ADMIN_VIEW,
         icon: <UserOutlined />,
-        label: "Quản lý Admin",
+        label: t("menu.admin_management"),
       },
       {
         key: ROUTES.ADMIN_REQUEST_APPROVE,
         icon: <CheckSquareOutlined />,
-        label: "Phê duyệt Request",
+        label: t("menu.requests"),
       },
     ];
   }
@@ -46,7 +46,7 @@ export const getMenuItems = (): ItemType[] => {
       {
         key: ROUTES.DASHBOARD,
         icon: <AppstoreOutlined />,
-        label: "Bảng Điều Khiển",
+        label: t("menu.dashboard"),
       },
     ];
   }
@@ -55,17 +55,17 @@ export const getMenuItems = (): ItemType[] => {
     {
       key: ROUTES.BUSINESS_INFO,
       icon: <ContainerOutlined />,
-      label: "Thông tin Doanh nghiệp",
+      label: t("menu.business_info"),
     },
     {
       key: ROUTES.CHATBOT_CONFIG,
       icon: <DesktopOutlined />,
-      label: "Cấu hình AI Chatbot",
+      label: t("menu.chatbot_config"),
     },
     {
       key: ROUTES.UIFLOW_CONFIG,
       icon: <PieChartOutlined />,
-      label: "Luồng Màn hình (UI Flow)",
+      label: t("menu.ui_flow_config"),
     },
   ];
 };

@@ -5,6 +5,7 @@ import { AdminAPI } from '../../api/client';
 import type { BusinessConfig, UIFlowNode } from '../../api/types';
 import { AppThemeProvider } from '../../components/AppThemeProvider/AppThemeProvider';
 import { useAppNotification } from '../../hooks/useAppNotification';
+import { useTranslation } from 'react-i18next';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -24,6 +25,16 @@ export const UIFlowConfig: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [config, setConfig] = useState<BusinessConfig | null>(null);
   const { notifySuccess, notifyError, contextHolder } = useAppNotification();
+  const [submittable, setSubmittable] = useState(false);
+  const values = Form.useWatch([], form);
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    form.validateFields({ validateOnly: true }).then(
+      () => setSubmittable(true),
+      () => setSubmittable(false)
+    );
+  }, [values, form]);
 
   const loadData = async () => {
     try {
@@ -134,9 +145,9 @@ export const UIFlowConfig: React.FC = () => {
     <AppThemeProvider>
       {contextHolder}
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-        <Title level={3} style={{ marginBottom: 8 }}>Luồng Màn hình (UI Flow)</Title>
+        <Title level={3} style={{ marginBottom: 8 }}>{t("ui_flow.title")}</Title>
         <Text type="secondary" style={{ display: 'block', marginBottom: 24 }}>
-          Quản lý các khối chức năng (BlockFlow) để mô tả cách người dùng điều hướng trên website của bạn.
+          {t("ui_flow.desc")}
         </Text>
 
         <Card bordered={false} style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.05)', width: 'calc(100% - 80px)' }}>
@@ -170,10 +181,10 @@ export const UIFlowConfig: React.FC = () => {
                       <Form.Item
                         {...restField}
                         name={[name, 'name']}
-                        label="Tên chức năng"
+                        label={t("setup.block_name")}
                         rules={[{ required: true, message: 'Vui lòng nhập tên chức năng' }]}
                       >
-                        <Input placeholder="Ví dụ: Xem sản phẩm" />
+                        <Input />
                       </Form.Item>
 
                       {/* Chức năng cha */}
@@ -200,17 +211,16 @@ export const UIFlowConfig: React.FC = () => {
                             <Form.Item
                               {...restField}
                               name={[name, 'parent']}
-                              label="Chức năng cha"
+                              label={t("setup.block_parent")}
                             >
                               <Select
-                                placeholder="Chọn chức năng cha"
                                 options={availableParents}
                                 allowClear
                               />
                             </Form.Item>
                           ) : (
                             <Text type="secondary" style={{ display: 'block', marginBottom: 24 }}>
-                              (Đây là block gốc — màn hình chính, không có chức năng cha)
+                              {t("setup.root_note")}
                             </Text>
                           );
                         }}
@@ -220,9 +230,10 @@ export const UIFlowConfig: React.FC = () => {
                       <Form.Item
                         {...restField}
                         name={[name, 'description']}
-                        label="Mô tả chi tiết"
+                        label={t("setup.block_desc")}
+                        rules={[{ required: true, message: 'Vui lòng mô tả chức năng này' }]}
                       >
-                        <TextArea rows={2} placeholder="Mô tả người dùng làm gì ở đây" />
+                        <TextArea rows={2} />
                       </Form.Item>
 
                       {/* Đường dẫn tuyệt đối — optional */}
@@ -231,21 +242,21 @@ export const UIFlowConfig: React.FC = () => {
                         name={[name, 'absoluteUrl']}
                         label={
                           <span>
-                            Đường dẫn tuyệt đối{' '}
+                            {t("setup.block_url")}{' '}
                             <Text type="secondary" style={{ fontSize: 12, fontWeight: 400 }}>
-                              (tuỳ chọn — link trực tiếp vào chức năng này)
+                              (tuỳ chọn)
                             </Text>
                           </span>
                         }
                       >
-                        <Input placeholder="https://example.com/products hoặc /products" />
+                        <Input />
                       </Form.Item>
                     </Card>
                   ))}
 
                   <Form.Item>
                     <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                      Thêm chức năng mới
+                      {t("setup.add_block")}
                     </Button>
                   </Form.Item>
                 </>
@@ -253,8 +264,8 @@ export const UIFlowConfig: React.FC = () => {
             </Form.List>
 
             <Space style={{ width: '100%', justifyContent: 'flex-end', marginTop: 16 }}>
-              <Button type="primary" htmlType="submit" loading={submitting} icon={<SaveOutlined />}>
-                Lưu thay đổi
+              <Button type="primary" htmlType="submit" loading={submitting} icon={<SaveOutlined />} disabled={!submittable}>
+                {t("common.save")}
               </Button>
             </Space>
           </Form>

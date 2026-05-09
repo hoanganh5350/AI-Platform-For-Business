@@ -23,6 +23,12 @@ const userSchema = new mongoose.Schema(
     businessName: {
       type: String, // Optional, mostly for BUSINESS role
     },
+    email: {
+      type: String, // Optional
+    },
+    phone: {
+      type: String, // Optional
+    },
     status: {
       type: String,
       enum: ['Active', 'Inactive'],
