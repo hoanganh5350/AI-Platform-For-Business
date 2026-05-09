@@ -26,7 +26,11 @@ api.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('role');
       localStorage.removeItem('currentBusinessId');
-      window.location.href = '/login';
+      
+      // Do not force reload if already on the login page, so that login error messages can be shown
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
@@ -108,8 +112,8 @@ export const AdminAPI = {
   },
 
   // ─── USER MANAGEMENT (ADMIN_SYSTEM & ADMIN) ───
-  getDashboardStats: async () => {
-    const res = await api.get('/users-management/dashboard');
+  getDashboardStats: async (period: string = 'month') => {
+    const res = await api.get('/users-management/dashboard', { params: { period } });
     return res.data;
   },
   getBusinesses: async () => {

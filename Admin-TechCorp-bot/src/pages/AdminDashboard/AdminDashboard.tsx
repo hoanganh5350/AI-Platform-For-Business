@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Card, Row, Col, Typography, Spin, Statistic } from 'antd';
+import { Card, Row, Col, Typography, Spin, Statistic, Select } from 'antd';
 import { AdminAPI } from '../../api/client';
 import { AppThemeProvider } from '../../components/AppThemeProvider/AppThemeProvider';
 import { useAppNotification } from '../../hooks/useAppNotification';
@@ -21,6 +21,7 @@ interface DashboardStats {
 export const AdminDashboard: React.FC = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState<'day' | 'month' | 'year'>('month');
   const { notifyError, contextHolder } = useAppNotification();
   const { t } = useTranslation();
   const { theme } = useGetThemeSystem();
@@ -37,8 +38,9 @@ export const AdminDashboard: React.FC = () => {
 
   useEffect(() => { 
     const fetchStats = async () => {
+      setLoading(true);
       try {
-        const res = await AdminAPI.getDashboardStats();
+        const res = await AdminAPI.getDashboardStats(period);
         if (res.success) {
           setStats(res.data);
         }
@@ -50,7 +52,7 @@ export const AdminDashboard: React.FC = () => {
       }
     };
     fetchStats();
-  }, []);
+  }, [period]);
 
   // ─── Bar Chart: Signups per month ───
   const barOption = useMemo(() => ({
@@ -228,6 +230,17 @@ export const AdminDashboard: React.FC = () => {
           <Col span={24}>
             <Card
               title={t('admin.chart_signups')}
+              extra={
+                <Select
+                  value={period}
+                  onChange={(val) => setPeriod(val)}
+                  style={{ width: 120 }}
+                >
+                  <Select.Option value="day">{t('admin.filter_day')}</Select.Option>
+                  <Select.Option value="month">{t('admin.filter_month')}</Select.Option>
+                  <Select.Option value="year">{t('admin.filter_year')}</Select.Option>
+                </Select>
+              }
               bordered={false}
               style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
             >

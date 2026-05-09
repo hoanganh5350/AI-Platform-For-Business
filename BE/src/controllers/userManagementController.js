@@ -12,25 +12,48 @@ const userManagementController = {
   // ─── DASHBOARD ─────────────────────────────────────────────────────────────
   getDashboardStats: async (req, res) => {
     try {
-      // 1. Business signups per month (last 12 months)
-      const twelveMonthsAgo = new Date();
-      twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+      const period = req.query.period || 'month'; // 'day', 'month', 'year'
+      
+      let dateFrom = new Date();
+      let groupId = {};
+      
+      if (period === 'day') {
+        dateFrom.setDate(dateFrom.getDate() - 30); // Last 30 days
+        groupId = { year: { $year: '$createdAt' }, month: { $month: '$createdAt' }, day: { $dayOfMonth: '$createdAt' } };
+      } else if (period === 'year') {
+        dateFrom.setFullYear(dateFrom.getFullYear() - 5); // Last 5 years
+        groupId = { year: { $year: '$createdAt' } };
+      } else {
+        // Default to 'month'
+        dateFrom.setMonth(dateFrom.getMonth() - 12); // Last 12 months
+        groupId = { year: { $year: '$createdAt' }, month: { $month: '$createdAt' } };
+      }
 
       const signups = await User.aggregate([
-        { $match: { role: 'BUSINESS', createdAt: { $gte: twelveMonthsAgo } } },
+        { $match: { role: 'BUSINESS', createdAt: { $gte: dateFrom } } },
         {
           $group: {
-            _id: { year: { $year: '$createdAt' }, month: { $month: '$createdAt' } },
+            _id: groupId,
             count: { $sum: 1 },
           },
         },
-        { $sort: { '_id.year': 1, '_id.month': 1 } },
+        { $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 } },
       ]);
 
-      const formattedSignups = signups.map((item) => ({
-        month: `${item._id.month}/${item._id.year}`,
-        count: item.count,
-      }));
+      const formattedSignups = signups.map((item) => {
+        let label = '';
+        if (period === 'day') {
+          label = `${item._id.day}/${item._id.month}/${item._id.year}`;
+        } else if (period === 'year') {
+          label = `${item._id.year}`;
+        } else {
+          label = `${item._id.month}/${item._id.year}`;
+        }
+        return {
+          month: label, // keeping the key as 'month' to not break frontend typing heavily, or can change it to 'label'
+          count: item.count,
+        };
+      });
 
       // 2. Industries Pie Chart
       const industries = await BusinessConfig.aggregate([

@@ -145,6 +145,9 @@
     "filter_target_all": "All targets",
     "filter_reset": "Reset",
     "not_updated": "Not updated",
-    "filter_title": "Filter"
+    "filter_title": "Filter",
+    "filter_day": "By day",
+    "filter_month": "By month",
+    "filter_year": "By year"
   }
 }

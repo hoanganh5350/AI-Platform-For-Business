@@ -145,6 +145,9 @@
     "filter_target_all": "Tất cả đối tượng",
     "filter_reset": "Xóa bộ lọc",
     "not_updated": "Chưa cập nhật",
-    "filter_title": "Bộ lọc"
+    "filter_title": "Bộ lọc",
+    "filter_day": "Theo ngày",
+    "filter_month": "Theo tháng",
+    "filter_year": "Theo năm"
   }
 }
