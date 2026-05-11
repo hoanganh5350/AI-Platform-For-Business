@@ -5,7 +5,7 @@ Multi-tenant AI chatbot platform for businesses. The repository contains:
 - `BE`: Node.js/Express backend with MongoDB, RBAC, approval workflow, chat sessions, and Gemini integration.
 - `FE`: reusable React chatbot widget package (`@ai-chatbot-platform/react`).
 - `Admin-TechCorp-bot`: React admin/business dashboard for account approval and chatbot configuration.
-- `docs`: generated architecture documentation, including the class diagram.
+- `docs`: generated architecture documentation, including the class and sequence diagrams.
 
 This README describes the current source code, not the older draft architecture.
 
@@ -14,6 +14,7 @@ This README describes the current source code, not the older draft architecture.
 - Class diagram source: `docs/class-diagram.md`
 - Rendered class diagram: `docs/class-diagram.svg`
 - Editable draw.io diagram: `docs/class-diagram.drawio`
+- Sequence diagram source: `docs/sequence-diagram.md`
 
 ## Repository Structure
 
@@ -80,7 +81,14 @@ AI-Platform-For-Business/
 |-- docs/
 |   |-- class-diagram.drawio
 |   |-- class-diagram.md
-|   `-- class-diagram.svg
+|   |-- class-diagram.svg
+|   |-- sequence-diagrams/
+|   |   |-- 01-login.md
+|   |   |-- 02-logout.md
+|   |   |-- 03-create-admin-account.md
+|   |   |-- 04-search-admin-account.md
+|   |   `-- 05-update-admin-account.md
+|   `-- sequence-diagram.md
 `-- README.md
 ```
 
