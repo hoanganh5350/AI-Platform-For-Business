@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Form, Input, Button, Card, Typography, Skeleton, Space, Divider } from 'antd';
 import { SaveOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { AdminAPI } from '../../api/client';
@@ -32,8 +32,8 @@ export const BusinessInfo: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [config, setConfig] = useState<BusinessConfig | null>(null);
-  const [submittable, setSubmittable] = useState(false);
-  const values = Form.useWatch([], form);
+  const businessName = Form.useWatch('businessName', form);
+  const description = Form.useWatch('description', form);
 
   // ── Custom fields state
   const [pendingTitle, setPendingTitle] = useState('');
@@ -46,12 +46,10 @@ export const BusinessInfo: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    form.validateFields({ validateOnly: true }).then(
-      () => setSubmittable(true),
-      () => setSubmittable(false)
-    );
-  }, [values, form]);
+  // Compute submittable directly from watched values — no timing issues
+  const submittable = useMemo(() => {
+    return !!(businessName?.trim() && description?.trim());
+  }, [businessName, description]);
 
   const loadData = async () => {
     try {
@@ -190,25 +188,40 @@ export const BusinessInfo: React.FC = () => {
             <Form.Item 
               label={t("admin.email", "Email")}
               name="email"
-              rules={[{ required: true, message: 'Vui lòng nhập email', type: 'email' }]}
+              rules={[
+                { required: true, message: 'Vui lòng nhập email' },
+                { type: 'email', message: 'Email không đúng định dạng (ví dụ: contact@company.com)' },
+              ]}
             >
-              <Input />
+              <Input placeholder="Ví dụ: contact@company.com" />
             </Form.Item>
 
             <Form.Item 
               label={t("admin.phone", "Số điện thoại")}
               name="phone"
-              rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}
+              rules={[
+                { required: true, message: 'Vui lòng nhập số điện thoại' },
+                {
+                  pattern: /^(\+84|0)(3[2-9]|5[25689]|7[06-9]|8[0-689]|9[0-9])[0-9]{7}$/,
+                  message: 'Số điện thoại không hợp lệ (ví dụ: 0901234567 hoặc +84901234567)',
+                },
+              ]}
             >
-              <Input />
+              <Input placeholder="Ví dụ: 0901 234 567" maxLength={15} />
             </Form.Item>
 
             <Form.Item 
               label={t("setup.website")}
               name="website"
-              rules={[{ required: true, message: 'Vui lòng nhập đường dẫn website' }]}
+              rules={[
+                { required: true, message: 'Vui lòng nhập đường dẫn website' },
+                {
+                  pattern: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z]{2,}(\/[-a-zA-Z0-9@:%_+.~#?&/=]*)?$/,
+                  message: 'Đường dẫn không hợp lệ. Phải bắt đầu bằng http:// hoặc https://',
+                },
+              ]}
             >
-              <Input />
+              <Input placeholder="https://www.example.com" />
             </Form.Item>
 
             <Form.Item

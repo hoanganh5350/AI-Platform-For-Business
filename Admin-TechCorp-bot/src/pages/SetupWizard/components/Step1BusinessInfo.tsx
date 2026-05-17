@@ -3,6 +3,7 @@ import { Form, Input, Button, Card, Divider, Space, Typography } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { FormInstance } from 'antd/es/form';
 import { useTranslation } from 'react-i18next';
+import { AdminAPI } from '../../../api/client';
 
 const { TextArea } = Input;
 const { Text } = Typography;
@@ -23,6 +24,25 @@ export const Step1BusinessInfo: React.FC<Step1BusinessInfoProps> = ({ form, onNe
   const [submittable, setSubmittable] = useState(false);
   const values = Form.useWatch([], form);
   const { t } = useTranslation();
+
+  // Auto-fill businessName from registered user info
+  useEffect(() => {
+    const prefillBusinessName = async () => {
+      try {
+        const res = await AdminAPI.getCurrentUser();
+        if (res.success && res.data?.businessName) {
+          // Only set if the field is currently empty
+          const current = form.getFieldValue('businessName');
+          if (!current) {
+            form.setFieldValue('businessName', res.data.businessName);
+          }
+        }
+      } catch {
+        // silently ignore — user can type it manually
+      }
+    };
+    prefillBusinessName();
+  }, [form]);
 
   useEffect(() => {
     form.validateFields({ validateOnly: true }).then(
@@ -59,7 +79,7 @@ export const Step1BusinessInfo: React.FC<Step1BusinessInfoProps> = ({ form, onNe
           name="businessName"
           rules={[{ required: true, message: 'Vui lòng nhập tên doanh nghiệp' }]}
         >
-          <Input placeholder="Nhập tên doanh nghiệp của bạn" />
+          <Input placeholder="Ví dụ: Công ty TNHH Thương Mại ABC" />
         </Form.Item>
 
         <Form.Item 
@@ -67,23 +87,32 @@ export const Step1BusinessInfo: React.FC<Step1BusinessInfoProps> = ({ form, onNe
           name="representative"
           rules={[{ required: true, message: 'Vui lòng nhập tên người đại diện' }]}
         >
-          <Input />
+          <Input placeholder="Ví dụ: Nguyễn Văn A" />
         </Form.Item>
 
         <Form.Item 
           label={t("admin.email", "Email")}
           name="email"
-          rules={[{ required: true, message: 'Vui lòng nhập email', type: 'email' }]}
+          rules={[
+            { required: true, message: 'Vui lòng nhập email' },
+            { type: 'email', message: 'Email không đúng định dạng (ví dụ: contact@company.com)' },
+          ]}
         >
-          <Input />
+          <Input placeholder="Ví dụ: contact@company.com" />
         </Form.Item>
 
         <Form.Item 
           label={t("admin.phone", "Số điện thoại")}
           name="phone"
-          rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}
+          rules={[
+            { required: true, message: 'Vui lòng nhập số điện thoại' },
+            {
+              pattern: /^(\+84|0)(3[2-9]|5[25689]|7[06-9]|8[0-689]|9[0-9])[0-9]{7}$/,
+              message: 'Số điện thoại không hợp lệ (ví dụ: 0901234567 hoặc +84901234567)',
+            },
+          ]}
         >
-          <Input />
+          <Input placeholder="Ví dụ: 0901 234 567" maxLength={15} />
         </Form.Item>
 
         <Form.Item 
@@ -91,15 +120,21 @@ export const Step1BusinessInfo: React.FC<Step1BusinessInfoProps> = ({ form, onNe
           name="industry"
           rules={[{ required: true, message: 'Vui lòng nhập lĩnh vực/ngành nghề' }]}
         >
-          <Input />
+          <Input placeholder="Ví dụ: Thương mại điện tử, Bất động sản, Giáo dục..." />
         </Form.Item>
 
         <Form.Item 
           label={t("setup.website")}
           name="website"
-          rules={[{ required: true, message: 'Vui lòng nhập đường dẫn website' }]}
+          rules={[
+            { required: true, message: 'Vui lòng nhập đường dẫn website' },
+            {
+              pattern: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z]{2,}(\/[-a-zA-Z0-9@:%_+.~#?&/=]*)?$/,
+              message: 'Đường dẫn không hợp lệ. Phải bắt đầu bằng http:// hoặc https://',
+            },
+          ]}
         >
-          <Input placeholder="https://..." />
+          <Input placeholder="https://www.example.com" />
         </Form.Item>
 
         <Form.Item
@@ -107,7 +142,7 @@ export const Step1BusinessInfo: React.FC<Step1BusinessInfoProps> = ({ form, onNe
           name="description"
           rules={[{ required: true, message: 'Vui lòng mô tả nghiệp vụ' }]}
         >
-          <TextArea rows={4} />
+          <TextArea rows={4} placeholder="Mô tả hoạt động kinh doanh, sản phẩm/dịch vụ chính của doanh nghiệp..." />
         </Form.Item>
 
         <Form.Item 

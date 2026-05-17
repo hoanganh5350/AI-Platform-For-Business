@@ -26,4 +26,5 @@ export interface BusinessConfig {
   welcomeMessage: string;
   language: string;
   uiFlowTree: UIFlowNode[];
+  metadata?: Record<string, unknown>;
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Form, Input, Button, Card, Select, Typography, Space } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { FormInstance } from 'antd/es/form';
@@ -15,16 +15,16 @@ interface Step2UIFlowProps {
 }
 
 export const Step2UIFlow: React.FC<Step2UIFlowProps> = ({ form, onBack, onFinish }) => {
-  const [submittable, setSubmittable] = useState(false);
-  const values = Form.useWatch([], form);
+  const blocks: UIBlockForm[] | undefined = Form.useWatch('blocks', form);
   const { t } = useTranslation();
 
-  useEffect(() => {
-    form.validateFields({ validateOnly: true }).then(
-      () => setSubmittable(true),
-      () => setSubmittable(false)
+  // Compute submittable directly from watched values — no timing issues
+  const submittable = useMemo(() => {
+    if (!blocks || blocks.length === 0) return false;
+    return blocks.every(
+      (block) => block?.name?.trim() && block?.description?.trim()
     );
-  }, [values, form]);
+  }, [blocks]);
 
   return (
     <Card
@@ -121,6 +121,8 @@ export const Step2UIFlow: React.FC<Step2UIFlowProps> = ({ form, onBack, onFinish
                   <Form.Item
                     {...restField}
                     name={[name, 'absoluteUrl']}
+                    required={false}
+                    rules={[]}
                     label={
                       <span>
                         {t("setup.block_url")}{' '}

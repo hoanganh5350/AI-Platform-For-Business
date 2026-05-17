@@ -5,6 +5,7 @@ import { SetupWizard } from "../pages/SetupWizard/SetupWizard";
 import { BusinessInfo } from "../pages/BusinessInfo/BusinessInfo";
 import { ChatbotConfig } from "../pages/ChatbotConfig/ChatbotConfig";
 import { UIFlowConfig } from "../pages/UIFlowConfig/UIFlowConfig";
+import { BusinessProducts } from "../pages/BusinessProducts/BusinessProducts";
 import { Login } from "../pages/Login/Login";
 import { AdminDashboard } from "../pages/AdminDashboard/AdminDashboard";
 import { AdminBusinessView } from "../pages/AdminBusinessView/AdminBusinessView";
@@ -57,6 +58,13 @@ const flatRoutes: RouteItem[] = [
   {
     path: ROUTES.UIFLOW_CONFIG,
     element: <UIFlowConfig />,
+    layout: ELayout.MAIN_LAYOUT,
+    authenticator: true,
+    role: [UserRole.BUSINESS],
+  },
+  {
+    path: ROUTES.BUSINESS_PRODUCTS,
+    element: <BusinessProducts />,
     layout: ELayout.MAIN_LAYOUT,
     authenticator: true,
     role: [UserRole.BUSINESS],

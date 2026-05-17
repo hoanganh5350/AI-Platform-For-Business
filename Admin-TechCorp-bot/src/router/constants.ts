@@ -7,6 +7,7 @@ export const ROUTES = {
   DASHBOARD: "/dashboard",
   SETUP: "/setup",
   BUSINESS_INFO: "/business-info",
+  BUSINESS_PRODUCTS: "/business-products",
   CHATBOT_CONFIG: "/chatbot-config",
   UIFLOW_CONFIG: "/uiflow-config",
   // Admin Routes

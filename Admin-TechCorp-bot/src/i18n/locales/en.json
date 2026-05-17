@@ -35,6 +35,7 @@
     "business_management": "Business Management",
     "chatbot_config": "AI Chatbot Config",
     "business_info": "Business Info",
+    "business_products": "Product Catalog",
     "ui_flow_config": "UI Flow Config"
   },
   "login": {
