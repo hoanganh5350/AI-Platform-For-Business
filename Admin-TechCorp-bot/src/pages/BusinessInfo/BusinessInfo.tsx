@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
-import { Form, Input, Button, Card, Typography, message, Skeleton, Space, Divider } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Form, Input, Button, Card, Typography, Skeleton, Space, Divider } from 'antd';
 import { SaveOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { AdminAPI } from '../../api/client';
 import type { BusinessConfig } from '../../api/types';
 import { AppThemeProvider } from '../../components/AppThemeProvider/AppThemeProvider';
+import { useAppNotification } from '../../hooks/useAppNotification';
+import { useTranslation } from 'react-i18next';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -17,7 +19,8 @@ interface CustomField {
 interface BusinessInfoForm {
   businessName: string;
   industry?: string;
-  contact?: string;
+  email?: string;
+  phone?: string;
   website?: string;
   description: string;
   /** Dynamic extra sections keyed by field id */
@@ -29,23 +32,33 @@ export const BusinessInfo: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [config, setConfig] = useState<BusinessConfig | null>(null);
+  const businessName = Form.useWatch('businessName', form);
+  const description = Form.useWatch('description', form);
 
   // ── Custom fields state
   const [pendingTitle, setPendingTitle] = useState('');
   const [customFields, setCustomFields] = useState<CustomField[]>([]);
+  const { notifySuccess, notifyError, contextHolder } = useAppNotification();
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Compute submittable directly from watched values — no timing issues
+  const submittable = useMemo(() => {
+    return !!(businessName?.trim() && description?.trim());
+  }, [businessName, description]);
 
   const loadData = async () => {
     try {
       const businessId = localStorage.getItem('currentBusinessId');
       if (!businessId) {
-        message.error('Không tìm thấy Business ID');
+        notifyError('Không tìm thấy Business ID', 'Vui lòng đăng nhập lại.');
         return;
       }
-      const res = await AdminAPI.getConfig(businessId);
+      const res = await AdminAPI.getBusinessConfig(businessId);
       if (res.success && res.data) {
         setConfig(res.data);
 
@@ -81,14 +94,15 @@ export const BusinessInfo: React.FC = () => {
         form.setFieldsValue({
           businessName: res.data.businessName,
           industry: res.data.industry,
-          contact: res.data.contact,
+          email: res.data.email,
+          phone: res.data.phone,
           website: res.data.website,
           description: baseDesc,
           customFields: restoredValues,
         });
       }
     } catch {
-      message.error('Lỗi khi tải thông tin doanh nghiệp');
+      notifyError('Lỗi tải dữ liệu', 'Không thể tải thông tin doanh nghiệp. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -124,20 +138,21 @@ export const BusinessInfo: React.FC = () => {
         : values.description;
 
       if (fullDescription !== config.description) {
-        await AdminAPI.updateDescription(config.businessId, fullDescription);
+        await AdminAPI.updateDescriptionJwt(config.businessId, fullDescription);
       }
 
-      await AdminAPI.updateBusinessInfo(config.businessId, {
+      await AdminAPI.updateBusinessInfoJwt(config.businessId, {
         businessName: values.businessName,
         industry: values.industry,
-        contact: values.contact,
+        email: values.email,
+        phone: values.phone,
         website: values.website,
       });
 
-      message.success('Đã lưu thông tin doanh nghiệp thành công!');
+      notifySuccess('Lưu thành công!', 'Thông tin doanh nghiệp đã được cập nhật.');
       loadData();
     } catch {
-      message.error('Lỗi khi lưu thông tin');
+      notifyError('Lưu thất bại', 'Đã có lỗi khi lưu thông tin. Vui lòng kiểm tra lại và thử lại.');
     } finally {
       setSubmitting(false);
     }
@@ -149,30 +164,70 @@ export const BusinessInfo: React.FC = () => {
 
   return (
     <AppThemeProvider>
+      {contextHolder}
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-        <Title level={3} style={{ marginBottom: 24 }}>Thông tin Doanh nghiệp</Title>
+        <Title level={3} style={{ marginBottom: 24 }}>{t("business.title")}</Title>
         <Card bordered={false} style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.05)', width: 'calc(100% - 80px)' }}>
           <Form form={form} layout="vertical" onFinish={handleSave}>
-            <Form.Item label="Tên doanh nghiệp" name="businessName" rules={[{ required: true }]}>
+            <Form.Item 
+              label={t("setup.business_name")}
+              name="businessName" 
+              rules={[{ required: true, message: 'Vui lòng nhập tên doanh nghiệp' }]}
+            >
               <Input />
             </Form.Item>
 
-            <Form.Item label="Lĩnh vực / Ngành nghề" name="industry">
+            <Form.Item 
+              label={t("setup.industry")}
+              name="industry"
+              rules={[{ required: true, message: 'Vui lòng nhập lĩnh vực / ngành nghề' }]}
+            >
               <Input />
             </Form.Item>
 
-            <Form.Item label="Thông tin liên hệ (Email / SĐT)" name="contact">
-              <Input />
+            <Form.Item 
+              label={t("admin.email", "Email")}
+              name="email"
+              rules={[
+                { required: true, message: 'Vui lòng nhập email' },
+                { type: 'email', message: 'Email không đúng định dạng (ví dụ: contact@company.com)' },
+              ]}
+            >
+              <Input placeholder="Ví dụ: contact@company.com" />
             </Form.Item>
 
-            <Form.Item label="Đường dẫn Website" name="website">
-              <Input />
+            <Form.Item 
+              label={t("admin.phone", "Số điện thoại")}
+              name="phone"
+              rules={[
+                { required: true, message: 'Vui lòng nhập số điện thoại' },
+                {
+                  pattern: /^(\+84|0)(3[2-9]|5[25689]|7[06-9]|8[0-689]|9[0-9])[0-9]{7}$/,
+                  message: 'Số điện thoại không hợp lệ (ví dụ: 0901234567 hoặc +84901234567)',
+                },
+              ]}
+            >
+              <Input placeholder="Ví dụ: 0901 234 567" maxLength={15} />
+            </Form.Item>
+
+            <Form.Item 
+              label={t("setup.website")}
+              name="website"
+              rules={[
+                { required: true, message: 'Vui lòng nhập đường dẫn website' },
+                {
+                  pattern: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z]{2,}(\/[-a-zA-Z0-9@:%_+.~#?&/=]*)?$/,
+                  message: 'Đường dẫn không hợp lệ. Phải bắt đầu bằng http:// hoặc https://',
+                },
+              ]}
+            >
+              <Input placeholder="https://www.example.com" />
             </Form.Item>
 
             <Form.Item
-              label="Mô tả nghiệp vụ / Kiến thức cơ sở cho AI"
+              label={t("business.desc_label")}
               name="description"
-              rules={[{ required: true }]}
+              rules={[{ required: true, message: 'Vui lòng nhập mô tả nghiệp vụ' }]}
             >
               <TextArea rows={8} />
             </Form.Item>
@@ -181,7 +236,7 @@ export const BusinessInfo: React.FC = () => {
             {customFields.length > 0 && (
               <>
                 <Divider orientation="left" style={{ fontSize: 13, color: '#888' }}>
-                  Mô tả bổ sung
+                  {t("setup.custom_fields")}
                 </Divider>
                 {customFields.map((field) => (
                   <Form.Item
@@ -200,6 +255,7 @@ export const BusinessInfo: React.FC = () => {
                       </Space>
                     }
                     name={['customFields', field.id]}
+                    rules={[{ required: true, message: `Vui lòng nhập ${field.title}` }]}
                   >
                     <TextArea rows={2} placeholder={`Nhập ${field.title}...`} />
                   </Form.Item>
@@ -210,7 +266,7 @@ export const BusinessInfo: React.FC = () => {
             {/* ── Add custom field ── */}
             <Divider dashed style={{ marginTop: 4 }} />
             <Text type="secondary" style={{ display: 'block', marginBottom: 8, fontSize: 13 }}>
-              Thêm trường mô tả tùy chỉnh (tuỳ chọn)
+              {t("setup.add_custom")}
             </Text>
             <Space.Compact style={{ width: '100%', marginBottom: 24 }}>
               <Input
@@ -225,13 +281,13 @@ export const BusinessInfo: React.FC = () => {
                 onClick={handleAddCustomField}
                 disabled={!pendingTitle.trim()}
               >
-                Tạo thêm mô tả
+                {t("setup.add_desc_btn")}
               </Button>
             </Space.Compact>
 
             <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
-              <Button type="primary" htmlType="submit" loading={submitting} icon={<SaveOutlined />}>
-                Lưu thay đổi
+              <Button type="primary" htmlType="submit" loading={submitting} icon={<SaveOutlined />} disabled={!submittable}>
+                {t("common.save")}
               </Button>
             </Space>
           </Form>

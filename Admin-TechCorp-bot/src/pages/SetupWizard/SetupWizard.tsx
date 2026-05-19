@@ -4,6 +4,7 @@ import { AppThemeProvider } from '../../components/AppThemeProvider/AppThemeProv
 import { AdminAPI } from '../../api/client';
 import type { UIFlowNode } from '../../api/types';
 import type { BusinessDataForm, UIBlockForm } from './SetupWizard.types';
+import { useTranslation } from 'react-i18next';
 
 import { Step1BusinessInfo } from './components/Step1BusinessInfo';
 import { Step2UIFlow } from './components/Step2UIFlow';
@@ -17,6 +18,7 @@ export const SetupWizard: React.FC = () => {
 
   const [form1] = Form.useForm();
   const [form2] = Form.useForm();
+  const { t } = useTranslation();
 
   const handleNextStep1 = async () => {
     try {
@@ -98,7 +100,8 @@ export const SetupWizard: React.FC = () => {
         businessId,
         businessName: businessData.businessName || '',
         industry: businessData.industry,
-        contact: businessData.contact,
+        email: businessData.email,
+        phone: businessData.phone,
         website: businessData.website,
         description: fullDescription,
         tone: 'professional' as const,
@@ -108,11 +111,16 @@ export const SetupWizard: React.FC = () => {
         uiFlowTree: tree,
       };
 
-      const res = await AdminAPI.createConfig(payload);
+      const res = await AdminAPI.createBusinessConfig(payload);
       if (res.success) {
-        setCreatedBusinessId(businessId);
-        // Save current business globally so they enter the dashboard
-        localStorage.setItem('currentBusinessId', businessId);
+        // Use the authoritative businessId returned by the server (may differ if user already had a businessId in JWT)
+        const confirmedBusinessId = res.businessId || businessId;
+        setCreatedBusinessId(confirmedBusinessId);
+        // Update localStorage with confirmed businessId and the new JWT token (contains updated businessId)
+        localStorage.setItem('currentBusinessId', confirmedBusinessId);
+        if (res.token) {
+          localStorage.setItem('token', res.token);
+        }
       } else {
         message.error('Có lỗi xảy ra khi tạo cấu hình');
       }
@@ -128,9 +136,9 @@ export const SetupWizard: React.FC = () => {
     <AppThemeProvider>
       <div style={{ maxWidth: 800, margin: '40px auto', padding: '0 20px' }}>
         <Steps current={currentStep} style={{ marginBottom: 40 }}>
-          <Steps.Step title="Thông tin Doanh nghiệp" />
-          <Steps.Step title="Cấu hình Luồng (UI Flow)" />
-          <Steps.Step title="Hoàn thành" />
+          <Steps.Step title={t("setup.step1")} />
+          <Steps.Step title={t("setup.step2")} />
+          <Steps.Step title={t("setup.step3")} />
         </Steps>
 
         {currentStep === 0 && (

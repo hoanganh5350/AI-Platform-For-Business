@@ -3,10 +3,6 @@ import type { ReactElement } from "react";
 import { UserRole } from "../../utils/types/user";
 import { ROUTES } from "../../router/constants";
 
-// const getCurrentUserRole = (): UserRole => {
-//   return (localStorage.getItem("role") as UserRole) ?? "guest";
-// };
-
 type ProtectedRouteProps = {
   children: ReactElement;
   authenticator?: boolean;
@@ -14,15 +10,22 @@ type ProtectedRouteProps = {
 };
 
 export const ProtectedRoute = ({ children, authenticator, role }: ProtectedRouteProps) => {
-  const isAuth = true;
-  const roleUser = UserRole.ADMIN;
+  const token = localStorage.getItem("token");
+  const isAuth = !!token;
+  const roleUser = (localStorage.getItem("role") as UserRole) || UserRole.BUSINESS;
 
   if (authenticator && !isAuth) {
     return <Navigate to={ROUTES.LOGIN} replace />;
   }
 
+  // If role is provided, user must have that role
   if (authenticator && isAuth && role && !role.includes(roleUser)) {
-    return <Navigate to={ROUTES.DASHBOARD} replace />;
+    // If they are admin but try to access business, or vice versa, redirect to appropriate home
+    if (roleUser === UserRole.ADMIN_SYSTEM || roleUser === UserRole.ADMIN) {
+      return <Navigate to={ROUTES.ADMIN_DASHBOARD} replace />;
+    } else {
+      return <Navigate to={ROUTES.DASHBOARD} replace />;
+    }
   }
 
   return children;

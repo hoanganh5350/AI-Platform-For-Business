@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import { getMenuItems } from "./MenuItem";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import styles from "./MainLayout.module.scss";
 import { Header, Menu } from "../../components";
 
@@ -13,6 +14,7 @@ type MainLayoutProps = {
 export default function MainLayout({ children }: MainLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   return (
     <div className={styles.containerMainLayout}>
       <Header />
@@ -24,7 +26,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
           onSelect={(e) => {
             navigate(e.key);
           }}
-          items={getMenuItems()}
+          items={getMenuItems(t)}
         />
         <div className={styles.containerOutlet}>{children ?? <Outlet />}</div>
       </div>

@@ -7,12 +7,19 @@ export const ROUTES = {
   DASHBOARD: "/dashboard",
   SETUP: "/setup",
   BUSINESS_INFO: "/business-info",
+  BUSINESS_PRODUCTS: "/business-products",
   CHATBOT_CONFIG: "/chatbot-config",
   UIFLOW_CONFIG: "/uiflow-config",
-  DASHBOARD_VIEW: "/dashboard/view",
-  DASHBOARD_VIEW_MODEL: "/dashboard/view/model",
-  DASHBOARD_VIEW_MODEL_CONTROLLER: "/dashboard/view/model/controller",
-  TRADING_VIEW: "/trading_view"
+  // Admin Routes
+  ADMIN_DASHBOARD: "/admin/dashboard",
+  ADMIN_BUSINESS_VIEW: "/admin/businesses",
+  ADMIN_ADMIN_VIEW: "/admin/admins",
+  ADMIN_REQUEST_APPROVE: "/admin/requests",
+  // Other Routes
+  DASHBOARD_VIEW: "/dashboard-view",
+  DASHBOARD_VIEW_MODEL: "/dashboard-view-model",
+  DASHBOARD_VIEW_MODEL_CONTROLLER: "/dashboard-view-model-controller",
+  TRADING_VIEW: "/trading-view",
 } as const;
 
 export type RouteItem = {

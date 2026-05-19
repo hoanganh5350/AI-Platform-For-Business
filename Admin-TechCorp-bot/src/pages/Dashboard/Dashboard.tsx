@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
 import { Button, Typography, Card, Skeleton } from 'antd';
 import { RobotOutlined, PlusOutlined } from '@ant-design/icons';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AdminAPI } from '../../api/client';
 import { ROUTES } from '../../router/constants';
 
 const { Title, Paragraph } = Typography;
@@ -12,28 +11,15 @@ export const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    checkBusiness();
-  }, []);
-
-  const checkBusiness = async () => {
+    // If currentBusinessId is already set (user has config), redirect to business info
     const localId = localStorage.getItem('currentBusinessId');
     if (localId) {
       navigate(ROUTES.BUSINESS_INFO, { replace: true });
       return;
     }
-
-    try {
-      const res = await AdminAPI.getConfigs();
-      if (res.success && res.data?.docs?.length > 0) {
-        localStorage.setItem('currentBusinessId', res.data.docs[0].businessId);
-        navigate(ROUTES.BUSINESS_INFO, { replace: true });
-      }
-    } catch (error) {
-      console.error('Lỗi khi lấy dữ liệu doanh nghiệp:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    setLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleCreateChatbot = () => {
     navigate(ROUTES.SETUP);

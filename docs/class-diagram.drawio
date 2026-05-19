@@ -1,0 +1,146 @@
+<mxfile host="65bd71144e">
+    <diagram id="traditional-uml-class-diagram" name="Traditional UML Class Diagram">
+        <mxGraphModel dx="677" dy="618" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1350" background="#FFFFFF" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="title" value="AI Chatbot Integration Platform - Traditional UML Class Diagram" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="360" y="70" width="820" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="User" value="&lt;div align=&quot;center&quot;&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;User&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;- _id: ObjectId&lt;br&gt;- userName: String&lt;br&gt;- password: String&lt;br&gt;- role: UserRole&lt;br&gt;- businessId: String&lt;br&gt;- businessName: String&lt;br&gt;- email: String&lt;br&gt;- phone: String&lt;br&gt;- status: AccountStatus&lt;br&gt;- createdBy: String&lt;br&gt;- updatedBy: String&lt;br&gt;- createdAt: Date&lt;br&gt;- updatedAt: Date&lt;hr&gt;No Methods" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="630" width="140" height="280" as="geometry"/>
+                </mxCell>
+                <mxCell id="BusinessConfig" value="&lt;div align=&quot;center&quot;&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;BusinessConfig&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;- _id: ObjectId&lt;br&gt;- businessId: String&lt;br&gt;- businessName: String&lt;br&gt;- industry: String&lt;br&gt;- email: String&lt;br&gt;- phone: String&lt;br&gt;- website: String&lt;br&gt;- tone: BusinessTone&lt;br&gt;- description: String&lt;br&gt;- language: String&lt;br&gt;- uiFlowTree: UIFlowNode[]&lt;br&gt;- chatbotName: String&lt;br&gt;- welcomeMessage: String&lt;br&gt;- isActive: Boolean&lt;br&gt;- metadata: Map&lt;br&gt;- createdAt: Date&lt;br&gt;- updatedAt: Date&lt;hr&gt;No Methods" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="615" y="400" width="165" height="340" as="geometry"/>
+                </mxCell>
+                <mxCell id="UIFlowNode" value="&lt;div align=&quot;center&quot;&gt;&amp;lt;&amp;lt;Embedded&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;UIFlowNode&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;- id: String&lt;br&gt;- name: String&lt;br&gt;- label: String&lt;br&gt;- parentId: String&lt;br&gt;- description: String&lt;br&gt;- actionType: ActionType&lt;br&gt;- url: String&lt;br&gt;- path: String&lt;br&gt;- action: String&lt;br&gt;- children: UIFlowNode[]&lt;hr&gt;No Methods" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="10" y="390" width="150" height="240" as="geometry"/>
+                </mxCell>
+                <mxCell id="ApprovalRequest" value="&lt;div align=&quot;center&quot;&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;ApprovalRequest&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;- _id: ObjectId&lt;br&gt;- requestId: String&lt;br&gt;- targetId: ObjectId&lt;br&gt;- targetType: TargetType&lt;br&gt;- action: RequestAction&lt;br&gt;- payload: Mixed&lt;br&gt;- status: RequestStatus&lt;br&gt;- createdBy: String&lt;br&gt;- updatedBy: String&lt;br&gt;- createdAt: Date&lt;br&gt;- updatedAt: Date&lt;hr&gt;No Methods" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="620" y="850" width="150" height="250" as="geometry"/>
+                </mxCell>
+                <mxCell id="ChatSession" value="&lt;div align=&quot;center&quot;&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;ChatSession&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;- _id: ObjectId&lt;br&gt;- sessionId: String&lt;br&gt;- businessId: String&lt;br&gt;- messages: ChatMessage[]&lt;br&gt;- lastActivityAt: Date&lt;br&gt;- userAgent: String&lt;br&gt;- ipAddress: String&lt;br&gt;- createdAt: Date&lt;br&gt;- updatedAt: Date&lt;hr&gt;+ preSave(): void" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="990" y="400" width="170" height="250" as="geometry"/>
+                </mxCell>
+                <mxCell id="ChatMessage" value="&lt;div align=&quot;center&quot;&gt;&amp;lt;&amp;lt;Embedded&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;ChatMessage&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;- _id: ObjectId&lt;br&gt;- role: MessageRole&lt;br&gt;- content: String&lt;br&gt;- suggestion: AISuggestion&lt;br&gt;- timestamp: Date&lt;hr&gt;No Methods" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="1420" y="955" width="160" height="170" as="geometry"/>
+                </mxCell>
+                <mxCell id="AISuggestion" value="&lt;div align=&quot;center&quot;&gt;&amp;lt;&amp;lt;ValueObject&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;AISuggestion&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;- type: SuggestionType&lt;br&gt;- target: String&lt;hr&gt;No Methods" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="1200" y="950" width="140" height="125" as="geometry"/>
+                </mxCell>
+                <mxCell id="BusinessConfigService" value="&lt;div align=&quot;center&quot;&gt;&amp;lt;&amp;lt;Service&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;BusinessConfigService&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;No&amp;nbsp;&lt;span style=&quot;font-family: &amp;quot;Segoe WPC&amp;quot;, &amp;quot;Segoe UI&amp;quot;, sans-serif; font-size: 13px; background-color: oklab(0.845175 0.0000383258 0.0000169277 / 0.05);&quot;&gt;Attributes&lt;/span&gt;&lt;hr&gt;+ upsertConfig(data): BusinessConfig&lt;br&gt;+ getConfig(businessId): BusinessConfig&lt;br&gt;+ listConfigs(page, limit): PageResult&lt;br&gt;+ updateUIFlowTree(businessId, uiFlowTree): BusinessConfig&lt;br&gt;+ updateDescription(businessId, description): BusinessConfig&lt;br&gt;+ deleteConfig(businessId): BusinessConfig" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="800" y="160" width="260" height="210" as="geometry"/>
+                </mxCell>
+                <mxCell id="ChatSessionService" value="&lt;div align=&quot;center&quot;&gt;&amp;lt;&amp;lt;Service&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;ChatSessionService&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;No&amp;nbsp;&lt;span style=&quot;font-family: &amp;quot;Segoe WPC&amp;quot;, &amp;quot;Segoe UI&amp;quot;, sans-serif; font-size: 13px; background-color: oklab(0.845175 0.0000383258 0.0000169277 / 0.05);&quot;&gt;Attributes&lt;/span&gt;&lt;hr&gt;+ getOrCreateSession(sessionId, businessId, meta): ChatSession&lt;br&gt;+ appendMessage(sessionId, message): ChatSession&lt;br&gt;+ getHistory(sessionId, limit): ChatMessage[]&lt;br&gt;+ generateSessionId(): String" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="870" y="950" width="310" height="175" as="geometry"/>
+                </mxCell>
+                <mxCell id="AIService" value="&lt;div align=&quot;center&quot;&gt;&amp;lt;&amp;lt;Service&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;AIService&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;- ai: GoogleGenAI&lt;br&gt;- model: String&lt;br&gt;- generationConfig: Object&lt;hr&gt;- formatUIFlowTree(nodes, depth): String&lt;br&gt;- buildSystemPrompt(config): String&lt;br&gt;- buildHistory(messages): Object[]&lt;br&gt;- parseResponse(rawText): AIResponse&lt;br&gt;+ generateResponse(params): AIResponse" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="1220" y="655" width="250" height="195" as="geometry"/>
+                </mxCell>
+                <mxCell id="ChatController" value="&lt;div align=&quot;center&quot;&gt;&amp;lt;&amp;lt;Controller&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;ChatController&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;No&amp;nbsp;&lt;span style=&quot;font-family: &amp;quot;Segoe WPC&amp;quot;, &amp;quot;Segoe UI&amp;quot;, sans-serif; font-size: 13px; background-color: oklab(0.845175 0.0000383258 0.0000169277 / 0.05);&quot;&gt;Attributes&lt;/span&gt;&lt;hr&gt;+ sendMessage(req, res): Response&lt;br&gt;+ getHistory(req, res): Response&lt;br&gt;+ clearSession(req, res): Response" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="800" y="760" width="210" height="141" as="geometry"/>
+                </mxCell>
+                <mxCell id="AdminController" value="&lt;div align=&quot;center&quot;&gt;&amp;lt;&amp;lt;Controller&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;AdminController&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;No&amp;nbsp;&lt;span style=&quot;font-family: &amp;quot;Segoe WPC&amp;quot;, &amp;quot;Segoe UI&amp;quot;, sans-serif; font-size: 13px; background-color: oklab(0.845175 0.0000383258 0.0000169277 / 0.05);&quot;&gt;Attributes&lt;/span&gt;&lt;hr&gt;+ upsertConfig(req, res): Response&lt;br&gt;+ listConfigs(req, res): Response&lt;br&gt;+ getConfig(req, res): Response&lt;br&gt;+ updateDescription(req, res): Response&lt;br&gt;+ updateUIFlowTree(req, res): Response&lt;br&gt;+ deleteConfig(req, res): Response&lt;br&gt;+ updateBusinessInfo(req, res): Response" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="1225" y="160" width="245" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="UserManagementController" value="&lt;div align=&quot;center&quot;&gt;&amp;lt;&amp;lt;Controller&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;UserManagementController&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;No&amp;nbsp;&lt;span style=&quot;font-family: &amp;quot;Segoe WPC&amp;quot;, &amp;quot;Segoe UI&amp;quot;, sans-serif; font-size: 13px; background-color: oklab(0.845175 0.0000383258 0.0000169277 / 0.05);&quot;&gt;Attributes&lt;/span&gt;&lt;hr&gt;+ getDashboardStats(req, res): Response&lt;br&gt;+ getBusinesses(req, res): Response&lt;br&gt;+ getAdmins(req, res): Response&lt;br&gt;+ requestUpdateUser(req, res): Response&lt;br&gt;+ registerBusiness(req, res): Response&lt;br&gt;+ createAdminRequest(req, res): Response&lt;br&gt;+ getApprovalRequests(req, res): Response&lt;br&gt;+ handleRequest(req, res): Response" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="10" y="915" width="250" height="210" as="geometry"/>
+                </mxCell>
+                <mxCell id="AuthController" value="&lt;div align=&quot;center&quot;&gt;&amp;lt;&amp;lt;Controller&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;AuthController&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;No&amp;nbsp;&lt;span style=&quot;font-family: &amp;quot;Segoe WPC&amp;quot;, &amp;quot;Segoe UI&amp;quot;, sans-serif; font-size: 13px; background-color: oklab(0.845175 0.0000383258 0.0000169277 / 0.05);&quot;&gt;Attributes&lt;/span&gt;&lt;hr&gt;+ login(req, res): Response&lt;br&gt;+ seedSystemAdmin(req, res): Response&lt;br&gt;+ getCurrentUser(req, res): Response&lt;br&gt;+ changePassword(req, res): Response" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="10" y="720" width="240" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="ConfigController" value="&lt;div align=&quot;center&quot;&gt;&amp;lt;&amp;lt;Controller&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;ConfigController&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;No&amp;nbsp;&lt;span style=&quot;font-family: &amp;quot;Segoe WPC&amp;quot;, &amp;quot;Segoe UI&amp;quot;, sans-serif; font-size: 13px; background-color: oklab(0.845175 0.0000383258 0.0000169277 / 0.05);&quot;&gt;Attributes  &lt;/span&gt;&lt;hr&gt;+ loadPublicConfig(req, res): Response" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="270" y="200" width="230" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_user_config" value="0..1 businessId 0..1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;fontColor=#000000;labelBackgroundColor=#FFFFFF;strokeColor=#000000;" parent="1" source="User" target="BusinessConfig" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_config_node" value="1 uiFlowTree 0..*" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=diamondThin;startFill=1;endArrow=none;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;" parent="1" source="BusinessConfig" target="UIFlowNode" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_node_self" value="children 0..*" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=diamondThin;startFill=0;endArrow=none;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;" parent="1" source="UIFlowNode" target="UIFlowNode" edge="1">
+                    <mxGeometry x="0.3333" y="-20" relative="1" as="geometry">
+                        <mxPoint x="20" y="20" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_config_session" value="&lt;font style=&quot;background-color: rgb(255, 255, 255);&quot; color=&quot;#000000&quot;&gt;1 businessId 0..*&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;strokeColor=#000000;" parent="1" source="BusinessConfig" target="ChatSession" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="850" y="570"/>
+                            <mxPoint x="850" y="525"/>
+                        </Array>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_session_msg" value="1 messages 0..*" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=diamondThin;startFill=1;endArrow=none;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;" parent="1" source="ChatSession" target="ChatMessage" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_msg_suggestion" value="0..1 suggestion" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=diamondThin;startFill=1;endArrow=none;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;" parent="1" source="ChatMessage" target="AISuggestion" edge="1">
+                    <mxGeometry x="-0.0022" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_approval_user" value="* targetId 1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;" parent="1" source="ApprovalRequest" target="User" edge="1">
+                    <mxGeometry x="0.0012" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="d_bcs_config" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;" parent="1" source="BusinessConfigService" target="BusinessConfig" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="d_css_session" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;" parent="1" source="ChatSessionService" target="ChatSession" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="d_ai_config" value="prompt context" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;" parent="1" source="AIService" target="BusinessConfig" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="970" y="753"/>
+                            <mxPoint x="970" y="570"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="d_ai_msg" value="history" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;" parent="1" source="AIService" target="ChatMessage" edge="1">
+                    <mxGeometry x="-0.0012" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="d_chat_bcs" value="delegates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;" parent="1" source="ChatController" target="BusinessConfigService" edge="1">
+                    <mxGeometry x="0.4158" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="d_chat_css" value="delegates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;" parent="1" source="ChatController" target="ChatSessionService" edge="1">
+                    <mxGeometry x="-0.003" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="d_chat_ai" value="delegates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;" parent="1" source="ChatController" target="AIService" edge="1">
+                    <mxGeometry x="-0.0021" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="d_admin_bcs" value="delegates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;" parent="1" source="AdminController" target="BusinessConfigService" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="d_config_bcs" value="delegates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;" parent="1" source="ConfigController" target="BusinessConfigService" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="d_user_mgmt_user" value="manages" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;" parent="1" source="UserManagementController" target="User" edge="1">
+                    <mxGeometry x="0.6154" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="d_user_mgmt_approval" value="maker-checker" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;" parent="1" source="UserManagementController" target="ApprovalRequest" edge="1">
+                    <mxGeometry x="0.0004" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="d_auth_user" value="authenticates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#000000;fontColor=#000000;labelBackgroundColor=#FFFFFF;" parent="1" source="AuthController" target="User" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
