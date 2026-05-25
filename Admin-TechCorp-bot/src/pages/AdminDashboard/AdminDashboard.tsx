@@ -207,7 +207,7 @@ export const AdminDashboard: React.FC = () => {
           <Col xs={24} sm={8}>
             <Card bordered={false} style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(99,102,241,0.10)' }}>
               <Statistic
-                title={t('admin.chart_signups')}
+                title={<span style={{ color: 'var(--color-text-60)' }}>{t('admin.chart_signups')}</span>}
                 value={totalSignups}
                 prefix={<RiseOutlined style={{ color: '#6366f1' }} />}
                 valueStyle={{ color: '#6366f1' }}
@@ -217,7 +217,7 @@ export const AdminDashboard: React.FC = () => {
           <Col xs={24} sm={8}>
             <Card bordered={false} style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(34,211,238,0.10)' }}>
               <Statistic
-                title={t('admin.chart_industries')}
+                title={<span style={{ color: 'var(--color-text-60)' }}>{t('admin.chart_industries')}</span>}
                 value={stats?.industries?.length ?? 0}
                 prefix={<ShopOutlined style={{ color: '#22d3ee' }} />}
                 valueStyle={{ color: '#22d3ee' }}
@@ -227,7 +227,7 @@ export const AdminDashboard: React.FC = () => {
           <Col xs={24} sm={8}>
             <Card bordered={false} style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(245,158,11,0.10)' }}>
               <Statistic
-                title={t('admin.chart_usage')}
+                title={<span style={{ color: 'var(--color-text-60)' }}>{t('admin.chart_usage')}</span>}
                 value={activatedChatbots}
                 prefix={<TeamOutlined style={{ color: '#f59e0b' }} />}
                 valueStyle={{ color: '#f59e0b' }}

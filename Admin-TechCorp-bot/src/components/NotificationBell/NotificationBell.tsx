@@ -9,6 +9,7 @@ import 'dayjs/locale/vi';
 import styles from '../Header/Header.module.scss';
 import { useNavigate } from 'react-router-dom';
 import { useAppNotification } from '../../hooks/useAppNotification';
+import { useGetThemeSystem } from '../../hook/useGetThemeSystem';
 
 dayjs.extend(relativeTime);
 
@@ -40,8 +41,8 @@ const NotificationItem: React.FC<{ item: AdminNotification }> = ({ item }) => {
           }} />
         )}
       </div>
-      <Typography.Text style={{ fontSize: 13, lineHeight: '1.4' }}>{item.message}</Typography.Text>
-      <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+      <Typography.Text style={{ fontSize: 13, lineHeight: '1.4', color: 'var(--color-text)' }}>{item.message}</Typography.Text>
+      <Typography.Text style={{ fontSize: 11, color: 'var(--color-text-60)' }}>
         {dayjs(item.timestamp).fromNow()}
       </Typography.Text>
     </div>
@@ -50,6 +51,7 @@ const NotificationItem: React.FC<{ item: AdminNotification }> = ({ item }) => {
 
 export const NotificationBell: React.FC<NotificationBellProps> = ({ role }) => {
   const navigate = useNavigate();
+  const { theme } = useGetThemeSystem();
   const { notifyInfo, contextHolder } = useAppNotification();
   
   const { notifications, hasUnread, unreadCount, markAllRead, markSingleRead } = useAdminNotifications(role, (requestId, message) => {
@@ -57,6 +59,9 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ role }) => {
       navigate(`/admin/requests?requestId=${requestId}`);
     });
   });
+
+  const listBg = theme === 'dark' ? 'var(--background-panel)' : '#f5f5f5';
+  const itemBg = theme === 'dark' ? 'var(--background-component)' : '#ffffff';
 
   const content = useMemo(() => (
     <div style={{ width: 320, maxHeight: 420, overflowY: 'auto' }}>
@@ -82,12 +87,12 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ role }) => {
         <List
           size="small"
           dataSource={notifications}
-          style={{padding:"6px", background:"var(--background)", borderRadius: "8px", maxHeight: 300, overflowY: "auto"}}
+          style={{padding:"6px", background: listBg, borderRadius: "8px", maxHeight: 300, overflowY: "auto"}}
           renderItem={(item: AdminNotification) => (
             <List.Item
               style={{
                 padding: '4px 6px',
-                background: '#fff',
+                background: itemBg,
                 borderRadius: 6,
                 marginBottom: 6,
                 cursor: 'pointer',
@@ -103,7 +108,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ role }) => {
         />
       )}
     </div>
-  ), [notifications, hasUnread, unreadCount, markAllRead, markSingleRead, navigate]);
+  ), [notifications, hasUnread, unreadCount, markAllRead, markSingleRead, navigate, listBg, itemBg]);
 
   return (
     <AppThemeProvider>
