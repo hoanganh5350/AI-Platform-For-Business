@@ -6,6 +6,7 @@ import { AppThemeProvider } from '../../components/AppThemeProvider/AppThemeProv
 import { useAppNotification } from '../../hooks/useAppNotification';
 import { EyeOutlined, UserAddOutlined, SearchOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -37,6 +38,7 @@ export const AdminUserView: React.FC = () => {
   const [editingRecord, setEditingRecord] = useState<UserRecord | null>(null);
   const [editForm] = Form.useForm();
 
+  const navigate = useNavigate();
   const { notifySuccess, notifyError, contextHolder } = useAppNotification();
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [createLoading, setCreateLoading] = useState(false);
@@ -80,7 +82,16 @@ export const AdminUserView: React.FC = () => {
       const values = await editForm.validateFields();
       const res = await AdminAPI.requestUpdateUser(editingRecord._id, values);
       if (res.success) {
-        notifySuccess('Tạo request thành công', `Yêu cầu cập nhật tài khoản "${editingRecord.userName}" đã được ghi nhận. Đang chờ phê duyệt.`);
+        const request = res.data;
+        notifySuccess(
+          'Tạo request thành công',
+          `Yêu cầu cập nhật tài khoản "${editingRecord.userName}" đã được ghi nhận. Đang chờ phê duyệt.`,
+          () => {
+            if (request?.requestId) {
+              navigate(`/admin/requests?requestId=${request.requestId}`);
+            }
+          }
+        );
         setIsEditModalVisible(false);
       }
     } catch (err: unknown) {
@@ -100,9 +111,15 @@ export const AdminUserView: React.FC = () => {
       }
       const res = await AdminAPI.createAdminRequest({ userName: values.userName, password: values.password });
       if (res.success) {
+        const request = res.data;
         notifySuccess(
           'Gửi yêu cầu thành công!',
-          `Tài khoản Admin "${values.userName}" đã được tạo ở trạng thái chờ. ADMIN_SYSTEM sẽ phê duyệt tại màn Quản lý Request.`
+          `Tài khoản Admin "${values.userName}" đã được tạo ở trạng thái chờ. ADMIN_SYSTEM sẽ phê duyệt tại màn Quản lý Request.`,
+          () => {
+            if (request?.requestId) {
+              navigate(`/admin/requests?requestId=${request.requestId}`);
+            }
+          }
         );
         setIsCreateModalVisible(false);
         createForm.resetFields();

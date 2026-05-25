@@ -6,6 +6,7 @@ import { AppThemeProvider } from '../../components/AppThemeProvider/AppThemeProv
 import { useAppNotification } from '../../hooks/useAppNotification';
 import { EyeOutlined, EyeInvisibleOutlined, SearchOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 
 const { Title } = Typography;
@@ -50,6 +51,7 @@ export const AdminBusinessView: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState<UserRecord | null>(null);
   const [form] = Form.useForm();
+  const navigate = useNavigate();
   const { notifySuccess, notifyError, contextHolder } = useAppNotification();
   const { t } = useTranslation();
 
@@ -90,7 +92,16 @@ export const AdminBusinessView: React.FC = () => {
       const values = await form.validateFields();
       const res = await AdminAPI.requestUpdateUser(editingRecord._id, values);
       if (res.success) {
-        notifySuccess('Tạo request thành công', `Yêu cầu cập nhật tài khoản "${editingRecord.userName}" đã được ghi nhận. Đang chờ phê duyệt từ quản trị viên.`);
+        const request = res.data;
+        notifySuccess(
+          'Tạo request thành công',
+          `Yêu cầu cập nhật tài khoản "${editingRecord.userName}" đã được ghi nhận. Đang chờ phê duyệt từ quản trị viên.`,
+          () => {
+            if (request?.requestId) {
+              navigate(`/admin/requests?requestId=${request.requestId}`);
+            }
+          }
+        );
         setIsModalVisible(false);
       }
     } catch (err) {

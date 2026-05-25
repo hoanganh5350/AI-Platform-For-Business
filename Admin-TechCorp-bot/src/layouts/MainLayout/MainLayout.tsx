@@ -1,6 +1,6 @@
 import { type ReactNode } from "react";
 import { Outlet } from "react-router-dom";
-import { getMenuItems } from "./MenuItem";
+import { getMenuItems } from "./Menuitem";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -20,7 +20,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       <Header />
       <div className={styles.containerBodyLayout}>
         <Menu
-          defaultSelectedKeys={[location.pathname]}
+          selectedKeys={[location.pathname]}
           defaultOpenKeys={[location.pathname]}
           mode="inline"
           onSelect={(e) => {

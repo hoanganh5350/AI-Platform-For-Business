@@ -131,6 +131,8 @@
     "chart_signups": "New Business Signups per Month",
     "chart_industries": "Industry Distribution",
     "chart_usage": "Chatbot Registration Ratio",
+    "activated": "Activated",
+    "not_activated": "Not Activated",
     "no_data": "No data available",
     "accounts": "accounts",
     "email": "Email",
