@@ -202,7 +202,7 @@ export const BusinessInfo: React.FC = () => {
               rules={[
                 { required: true, message: 'Vui lòng nhập số điện thoại' },
                 {
-                  pattern: /^(\+84|0)(3[2-9]|5[25689]|7[06-9]|8[0-689]|9[0-9])[0-9]{7}$/,
+                  pattern: /^(\+84|0)(3[2-9]|5[25689]|7[06-9]|8[0-689]|9[0-9])[0-9]{6,7}$/,
                   message: 'Số điện thoại không hợp lệ (ví dụ: 0901234567 hoặc +84901234567)',
                 },
               ]}
