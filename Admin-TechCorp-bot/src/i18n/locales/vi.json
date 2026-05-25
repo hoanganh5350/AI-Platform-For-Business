@@ -131,6 +131,8 @@
     "chart_signups": "Số lượng Account Business mới đăng ký theo tháng",
     "chart_industries": "Lĩnh vực ngành nghề",
     "chart_usage": "Tỉ lệ đăng ký chatbot",
+    "activated": "Đã kích hoạt",
+    "not_activated": "Chưa kích hoạt",
     "no_data": "Chưa có dữ liệu",
     "accounts": "tài khoản",
     "email": "Email",

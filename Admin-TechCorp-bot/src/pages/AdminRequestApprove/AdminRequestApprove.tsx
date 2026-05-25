@@ -8,6 +8,7 @@ import { useAppNotification } from '../../hooks/useAppNotification';
 import dayjs from 'dayjs';
 import { UserRole } from '../../utils/types/user';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 
@@ -163,6 +164,7 @@ export const AdminRequestApprove: React.FC = () => {
   const { notifySuccess, notifyError, notifyWarning, contextHolder } = useAppNotification();
   const currentUserRole = localStorage.getItem('role');
   const { t } = useTranslation();
+  const location = useLocation();
 
   const [filters, setFilters] = useState({ search: '', status: '', action: '', targetType: '' });
 
@@ -195,6 +197,22 @@ export const AdminRequestApprove: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (data.length > 0) {
+      const params = new URLSearchParams(window.location.search);
+      const reqId = params.get('requestId');
+      if (reqId) {
+        const found = data.find(item => item.requestId === reqId);
+        if (found) {
+          setViewingRecord(found);
+          setIsModalVisible(true);
+          // Clear query parameter to clean the address bar
+          window.history.replaceState({}, '', window.location.pathname);
+        }
+      }
+    }
+  }, [data, location.search]);
 
   const handleAction = async (requestId: string, action: 'APPROVE' | 'REJECT', record: ApprovalRequest) => {
     setActionLoading(`${requestId}-${action}`);

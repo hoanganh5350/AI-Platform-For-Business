@@ -1,7 +1,6 @@
 import { Option, SelectPopover } from "../SelectPopover/SelectPopover";
 import styles from "./Header.module.scss";
 import {
-  SettingOutlined,
   UserOutlined,
   MoonOutlined,
   SunOutlined,
@@ -14,6 +13,8 @@ import { useTranslation } from "react-i18next";
 import { Modal, Form, Input, Descriptions, message } from 'antd';
 import { AdminAPI } from '../../api/client';
 import { AppThemeProvider } from "../AppThemeProvider/AppThemeProvider";
+import { NotificationBell } from "../NotificationBell/NotificationBell";
+
 
 const optionLang = [
   {
@@ -53,21 +54,18 @@ const optionTheme = [
   },
 ];
 
-const extendHeader = [
-  {
-    label: "test 1",
-    value: 1,
-  },
-  {
-    label: "test 2",
-    value: 2,
-  },
-];
-
 export const Extend = () => {
   const { theme, setTheme } = useGetThemeSystem();
   const { t, i18n } = useTranslation();
   const [lang, setLang] = useState(i18n.language || "en");
+  const [role, setRole] = useState<string | null>(() => localStorage.getItem('role'));
+
+  useEffect(() => {
+    // Re-read role from localStorage when it might change (login/logout)
+    const syncRole = () => setRole(localStorage.getItem('role'));
+    window.addEventListener('storage', syncRole);
+    return () => window.removeEventListener('storage', syncRole);
+  }, []);
 
   const [isProfileModalVisible, setIsProfileModalVisible] = useState(false);
   const [isChangePasswordModalVisible, setIsChangePasswordModalVisible] = useState(false);
@@ -143,14 +141,9 @@ export const Extend = () => {
         onSelect={(e) => setTheme(e.value as "light" | "dark")}
         options={optionTheme}
       />
-      <SelectPopover
-        label={
-          <div className={styles.iconHeader}>
-            <SettingOutlined />
-          </div>
-        }
-        options={extendHeader}
-      />
+      {(role === 'ADMIN' || role === 'ADMIN_SYSTEM') && (
+        <NotificationBell role={role} />
+      )}
       <SelectPopover
         label={
           <div className={styles.iconHeader}>

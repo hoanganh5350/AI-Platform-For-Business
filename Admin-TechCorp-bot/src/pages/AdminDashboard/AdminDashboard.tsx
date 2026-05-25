@@ -172,16 +172,27 @@ export const AdminDashboard: React.FC = () => {
           label: { show: true, fontSize: 13, fontWeight: 'bold', color: textColor },
           itemStyle: { shadowBlur: 10, shadowColor: 'rgba(34,211,238,0.4)' },
         },
-        data: (stats?.chatbotUsage ?? []).map((u, i) => ({
-          value: u.count,
-          name: u.label || t('admin.no_data'),
-          itemStyle: { color: chartColors[(i + 2) % chartColors.length] },
-        })),
+        data: (stats?.chatbotUsage ?? []).map((u, i) => {
+          let name = u.label || t('admin.no_data');
+          if (u.label === 'Activated') {
+            name = t('admin.activated');
+          } else if (u.label === 'Not Activated') {
+            name = t('admin.not_activated');
+          }
+          return {
+            value: u.count,
+            name,
+            itemStyle: { color: chartColors[(i + 2) % chartColors.length] },
+          };
+        }),
       },
     ],
   }), [stats, axisColor, bgColor, t, textColor, tooltipBg, tooltipBorder, chartColors]);
 
   const totalSignups = stats?.signupsPerMonth?.reduce((s, d) => s + d.count, 0) ?? 0;
+  const activatedChatbots = useMemo(() => {
+    return stats?.chatbotUsage?.find(u => u.label === 'Activated')?.count ?? 0;
+  }, [stats]);
 
   if (loading) return <div style={{ padding: 40, textAlign: 'center' }}><Spin size="large" /></div>;
 
@@ -196,7 +207,7 @@ export const AdminDashboard: React.FC = () => {
           <Col xs={24} sm={8}>
             <Card bordered={false} style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(99,102,241,0.10)' }}>
               <Statistic
-                title={t('admin.chart_signups')}
+                title={<span style={{ color: 'var(--color-text-60)' }}>{t('admin.chart_signups')}</span>}
                 value={totalSignups}
                 prefix={<RiseOutlined style={{ color: '#6366f1' }} />}
                 valueStyle={{ color: '#6366f1' }}
@@ -206,7 +217,7 @@ export const AdminDashboard: React.FC = () => {
           <Col xs={24} sm={8}>
             <Card bordered={false} style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(34,211,238,0.10)' }}>
               <Statistic
-                title={t('admin.chart_industries')}
+                title={<span style={{ color: 'var(--color-text-60)' }}>{t('admin.chart_industries')}</span>}
                 value={stats?.industries?.length ?? 0}
                 prefix={<ShopOutlined style={{ color: '#22d3ee' }} />}
                 valueStyle={{ color: '#22d3ee' }}
@@ -216,8 +227,8 @@ export const AdminDashboard: React.FC = () => {
           <Col xs={24} sm={8}>
             <Card bordered={false} style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(245,158,11,0.10)' }}>
               <Statistic
-                title={t('admin.chart_usage')}
-                value={stats?.chatbotUsage?.length ?? 0}
+                title={<span style={{ color: 'var(--color-text-60)' }}>{t('admin.chart_usage')}</span>}
+                value={activatedChatbots}
                 prefix={<TeamOutlined style={{ color: '#f59e0b' }} />}
                 valueStyle={{ color: '#f59e0b' }}
               />

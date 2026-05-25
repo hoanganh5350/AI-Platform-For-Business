@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const ApprovalRequest = require('../models/ApprovalRequest');
 const BusinessConfig = require('../models/BusinessConfig');
+const socketManager = require('../utils/socketManager');
 
 const ROLES_HIERARCHY = {
   ADMIN_SYSTEM: 3,
@@ -64,13 +65,17 @@ const userManagementController = {
         count: item.count,
       }));
 
-      // 3. Chatbot usage pie chart (Has Config vs No Config)
+      // 3. Chatbot usage pie chart (Activated vs Not Activated based on existence of businessId)
+      const activatedCount = await User.countDocuments({
+        role: 'BUSINESS',
+        businessId: { $exists: true, $ne: null, $ne: '' }
+      });
       const totalBusinessUsers = await User.countDocuments({ role: 'BUSINESS' });
-      const businessWithConfig = await BusinessConfig.countDocuments();
       const chatbotUsage = [
-        { label: 'Using Chatbot', count: businessWithConfig },
-        { label: 'Not Using', count: Math.max(0, totalBusinessUsers - businessWithConfig) },
+        { label: 'Activated', count: activatedCount },
+        { label: 'Not Activated', count: Math.max(0, totalBusinessUsers - activatedCount) },
       ];
+
 
       res.json({
         success: true,
@@ -89,8 +94,27 @@ const userManagementController = {
   // ─── BUSINESS VIEW ─────────────────────────────────────────────────────────
   getBusinesses: async (req, res) => {
     try {
-      const users = await User.find({ role: 'BUSINESS' }).select('-password').sort({ createdAt: -1 });
-      res.json({ success: true, data: users });
+      const users = await User.find({ role: 'BUSINESS' }).select('-password').sort({ createdAt: -1 }).lean();
+      
+      const businessIds = users.map(u => u.businessId).filter(Boolean);
+      const configs = await BusinessConfig.find({ businessId: { $in: businessIds } }).lean();
+      const configMap = new Map(configs.map(c => [c.businessId, c]));
+
+      const enrichedUsers = users.map(user => {
+        if (user.businessId) {
+          const config = configMap.get(user.businessId);
+          if (config) {
+            return {
+              ...user,
+              email: user.email || config.email || '',
+              phone: user.phone || config.phone || '',
+            };
+          }
+        }
+        return user;
+      });
+
+      res.json({ success: true, data: enrichedUsers });
     } catch (err) {
       console.error(err);
       res.status(500).json({ success: false, message: 'Lỗi lấy danh sách business' });
@@ -135,6 +159,17 @@ const userManagementController = {
       });
 
       await request.save();
+
+      // Notify admins via Socket.IO
+      socketManager.emitNewRequest({
+        requestId: request.requestId,
+        action: 'UPDATE',
+        targetType: targetUser.role,
+        createdBy: currentUser.userName,
+        targetName: targetUser.userName,
+        message: `Yêu cầu cập nhật tài khoản "${targetUser.userName}" bởi ${currentUser.userName}`,
+      });
+
       res.json({ success: true, message: 'Tạo request update thành công', data: request });
     } catch (err) {
       console.error(err);
@@ -179,6 +214,16 @@ const userManagementController = {
         createdBy: userName,
       });
       await request.save();
+
+      // Notify admins via Socket.IO
+      socketManager.emitNewRequest({
+        requestId: request.requestId,
+        action: 'CREATE',
+        targetType: 'BUSINESS',
+        createdBy: userName,
+        targetName: userName,
+        message: `Doanh nghiệp mới "${businessName}" (${userName}) đã đăng ký, chờ phê duyệt`,
+      });
 
       res.json({ success: true, message: 'Đăng ký thành công! Tài khoản đang chờ phê duyệt từ quản trị viên.' });
     } catch (err) {
@@ -225,6 +270,16 @@ const userManagementController = {
         createdBy: currentUser.userName,
       });
       await request.save();
+
+      // Notify admins via Socket.IO
+      socketManager.emitNewRequest({
+        requestId: request.requestId,
+        action: 'CREATE',
+        targetType: 'ADMIN',
+        createdBy: currentUser.userName,
+        targetName: userName,
+        message: `Yêu cầu tạo tài khoản Admin "${userName}" bởi ${currentUser.userName}`,
+      });
 
       res.json({ success: true, message: 'Đã tạo request tạo tài khoản ADMIN. Đang chờ ADMIN_SYSTEM phê duyệt.', data: request });
     } catch (err) {
