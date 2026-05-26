@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Form, Input, Button, Card, Typography, Skeleton, Space, Divider } from 'antd';
-import { SaveOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Form, Input, Button, Card, Typography, Skeleton, Space, Divider, Switch } from 'antd';
+import { SaveOutlined, PlusOutlined, DeleteOutlined, GlobalOutlined } from '@ant-design/icons';
 import { AdminAPI } from '../../api/client';
 import type { BusinessConfig } from '../../api/types';
 import { AppThemeProvider } from '../../components/AppThemeProvider/AppThemeProvider';
@@ -38,6 +38,8 @@ export const BusinessInfo: React.FC = () => {
   // ── Custom fields state
   const [pendingTitle, setPendingTitle] = useState('');
   const [customFields, setCustomFields] = useState<CustomField[]>([]);
+  // ── Internet search toggle
+  const [enableInternetSearch, setEnableInternetSearch] = useState(false);
   const { notifySuccess, notifyError, contextHolder } = useAppNotification();
   const { t } = useTranslation();
 
@@ -91,6 +93,7 @@ export const BusinessInfo: React.FC = () => {
         }
 
         setCustomFields(restoredFields);
+        setEnableInternetSearch(res.data.enableInternetSearch ?? false);
         form.setFieldsValue({
           businessName: res.data.businessName,
           industry: res.data.industry,
@@ -147,6 +150,7 @@ export const BusinessInfo: React.FC = () => {
         email: values.email,
         phone: values.phone,
         website: values.website,
+        enableInternetSearch,
       });
 
       notifySuccess('Lưu thành công!', 'Thông tin doanh nghiệp đã được cập nhật.');
@@ -168,6 +172,56 @@ export const BusinessInfo: React.FC = () => {
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
         <Title level={3} style={{ marginBottom: 24 }}>{t("business.title")}</Title>
         <Card bordered={false} style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.05)', width: 'calc(100% - 80px)' }}>
+          {/* ── Internet Search Toggle ── */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '14px 18px',
+              borderRadius: 10,
+              background: enableInternetSearch
+                ? 'linear-gradient(135deg, rgba(22,119,255,0.08) 0%, rgba(114,46,209,0.06) 100%)'
+                : 'var(--background-component)',
+              border: `1.5px solid ${enableInternetSearch ? 'rgba(22,119,255,0.35)' : 'transparent'}`,
+              marginBottom: 24,
+              transition: 'all 0.3s ease',
+            }}
+          >
+            <Space size={12}>
+              <div
+                style={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: 10,
+                  background: enableInternetSearch
+                    ? 'linear-gradient(135deg, #1677ff 0%, #722ed1 100%)'
+                    : 'rgba(128,128,128,0.12)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.3s ease',
+                  flexShrink: 0,
+                }}
+              >
+                <GlobalOutlined style={{ fontSize: 18, color: enableInternetSearch ? '#fff' : 'var(--color-text-60)' }} />
+              </div>
+              <div>
+                <Text strong style={{ display: 'block', fontSize: 14 }}>
+                  {t('business.internet_search_label')}
+                </Text>
+                <Text type="secondary" style={{ fontSize: 12 }}>
+                  {t('business.internet_search_desc')}
+                </Text>
+              </div>
+            </Space>
+            <Switch
+              checked={enableInternetSearch}
+              onChange={setEnableInternetSearch}
+              style={{ flexShrink: 0 }}
+            />
+          </div>
+
           <Form form={form} layout="vertical" onFinish={handleSave}>
             <Form.Item 
               label={t("setup.business_name")}

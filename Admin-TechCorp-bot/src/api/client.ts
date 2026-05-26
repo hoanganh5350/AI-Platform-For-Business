@@ -136,4 +136,18 @@ export const AdminAPI = {
     const res = await api.post(`/users-management/requests/${requestId}/handle`, { action });
     return res.data;
   },
+
+  // ─── DOCUMENT MANAGEMENT ───
+  uploadDocument: async (businessId: string, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await api.post(`/business/config/${businessId}/documents`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
+  },
+  deleteDocument: async (businessId: string, docIndex: number) => {
+    const res = await api.delete(`/business/config/${businessId}/documents/${docIndex}`);
+    return res.data;
+  },
 };

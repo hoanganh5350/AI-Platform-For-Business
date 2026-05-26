@@ -13,6 +13,15 @@ export interface UIFlowNode {
   children?: UIFlowNode[];
 }
 
+export interface DocumentMeta {
+  name: string;
+  mimeType: string;
+  size: number;
+  uri: string;
+  geminiName?: string;
+  uploadedAt: string;
+}
+
 export interface BusinessConfig {
   businessId: string;
   businessName: string;
@@ -26,5 +35,7 @@ export interface BusinessConfig {
   welcomeMessage: string;
   language: string;
   uiFlowTree: UIFlowNode[];
+  enableInternetSearch?: boolean;
+  documents?: DocumentMeta[];
   metadata?: Record<string, unknown>;
 }

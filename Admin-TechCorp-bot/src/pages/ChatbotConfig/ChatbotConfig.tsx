@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Button, Card, Typography, Skeleton, Select, Space } from 'antd';
+import { Form, Input, Button, Card, Typography, Skeleton, Select, Space, Divider } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
 import { AdminAPI } from '../../api/client';
-import type { BusinessConfig } from '../../api/types';
+import type { BusinessConfig, DocumentMeta } from '../../api/types';
 import { AppThemeProvider } from '../../components/AppThemeProvider/AppThemeProvider';
 import { useAppNotification } from '../../hooks/useAppNotification';
+import { DocumentUpload } from '../../components/DocumentUpload/DocumentUpload';
 import { useTranslation } from 'react-i18next';
 
 const { Title } = Typography;
@@ -22,6 +23,7 @@ export const ChatbotConfig: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [config, setConfig] = useState<BusinessConfig | null>(null);
+  const [documents, setDocuments] = useState<DocumentMeta[]>([]);
   const { notifySuccess, notifyError, contextHolder } = useAppNotification();
   const { t } = useTranslation();
 
@@ -40,6 +42,7 @@ export const ChatbotConfig: React.FC = () => {
       const res = await AdminAPI.getBusinessConfig(businessId);
       if (res.success && res.data) {
         setConfig(res.data);
+        setDocuments(res.data.documents || []);
         form.setFieldsValue({
           chatbotName: res.data.chatbotName,
           welcomeMessage: res.data.welcomeMessage,
@@ -77,6 +80,8 @@ export const ChatbotConfig: React.FC = () => {
   if (loading) {
     return <div style={{ padding: 24 }}><Skeleton active /></div>;
   }
+
+  const businessId = config?.businessId || localStorage.getItem('currentBusinessId') || '';
 
   return (
     <AppThemeProvider>
@@ -119,6 +124,14 @@ export const ChatbotConfig: React.FC = () => {
               </Button>
             </Space>
           </Form>
+
+          {/* ── Knowledge Documents Section ── */}
+          <Divider style={{ marginTop: 32 }} />
+          <DocumentUpload
+            businessId={businessId}
+            documents={documents}
+            onDocumentsChange={setDocuments}
+          />
         </Card>
       </div>
     </AppThemeProvider>

@@ -89,7 +89,9 @@
   },
   "business": {
     "title": "Thông tin Doanh nghiệp",
-    "desc_label": "Mô tả nghiệp vụ / Kiến thức cơ sở cho AI"
+    "desc_label": "Mô tả nghiệp vụ / Kiến thức cơ sở cho AI",
+    "internet_search_label": "Tìm kiếm thông tin trên Internet",
+    "internet_search_desc": "Khi bật, chatbot sẽ tự động tìm kiếm thêm thông tin về doanh nghiệp trên internet (Search Grounding)"
   },
   "chatbot": {
     "title": "Cấu hình Chatbot",
@@ -104,6 +106,31 @@
     "lang_auto": "Tự động (Phát hiện theo người dùng)",
     "lang_vi": "Tiếng Việt",
     "lang_en": "Tiếng Anh"
+  },
+  "docs": {
+    "title": "Tài liệu Kiến thức cho Chatbot",
+    "subtitle": "Tải lên tài liệu (PDF, DOCX, TXT) để chatbot đọc và sử dụng làm nguồn kiến thức bổ sung.",
+    "tooltip": "Gemini AI sẽ đọc nội dung từ các tài liệu này và ưu tiên sử dụng khi trả lời câu hỏi người dùng.",
+    "drop_hint": "Kéo thả tài liệu vào đây hoặc nhấp để chọn file",
+    "max_hint": "Tối đa {{max}}MB mỗi file",
+    "uploading": "Đang tải lên",
+    "file_count": "tài liệu đã tải lên",
+    "upload_success": "Tải lên thành công",
+    "upload_success_desc": "đã được thêm vào cơ sở kiến thức",
+    "upload_error": "Lỗi tải lên",
+    "upload_error_desc": "Không thể tải lên tài liệu. Vui lòng thử lại.",
+    "delete_success": "Đã xóa tài liệu",
+    "delete_success_desc": "Tài liệu đã được xóa khỏi cơ sở kiến thức",
+    "delete_error": "Lỗi xóa tài liệu",
+    "delete_error_desc": "Không thể xóa tài liệu. Vui lòng thử lại.",
+    "confirm_delete": "Xóa tài liệu?",
+    "confirm_delete_desc": "Chatbot sẽ không còn dùng tài liệu này làm nguồn tham khảo nữa.",
+    "error_type": "Định dạng không hỗ trợ",
+    "error_type_desc": "Chỉ chấp nhận PDF, DOCX, DOC, TXT",
+    "error_size": "File quá lớn",
+    "error_size_desc": "Vượt quá giới hạn {{max}}MB",
+    "error_limit": "Đã đạt giới hạn",
+    "error_limit_desc": "Tối đa {{max}} tài liệu cho mỗi cấu hình"
   },
   "ui_flow": {
     "title": "Luồng Màn hình (UI Flow)",

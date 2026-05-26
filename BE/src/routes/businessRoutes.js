@@ -2,11 +2,34 @@
 
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
 const { authMiddleware, requireRole } = require('../middlewares/auth');
 const businessConfigService = require('../services/businessConfigService');
+const BusinessConfig = require('../models/BusinessConfig');
+const { GoogleGenAI } = require('@google/genai');
 const User = require('../models/User');
 
 const router = express.Router();
+
+// Multer — store in memory (max 50MB), filter by MIME type
+const ALLOWED_MIME = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'text/plain',
+];
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 50 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (ALLOWED_MIME.includes(file.mimetype)) return cb(null, true);
+    cb(new Error(`Định dạng file không hỗ trợ: ${file.mimetype}`));
+  },
+});
+
+// Gemini client for File API
+const geminiClient = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
 
 // Helper: verify BUSINESS user owns the given businessId (uses DB to handle stale JWTs)
 const checkBusinessOwnership = async (req, businessId) => {
@@ -184,5 +207,108 @@ router.patch('/update-config/:businessId', requireRole(['BUSINESS']), async (req
     return res.status(500).json({ success: false, message: 'Lỗi cập nhật cấu hình' });
   }
 });
+
+/**
+ * @route   POST /api/business/config/:businessId/documents
+ * @desc    Upload a document to Gemini File API and save URI in DB
+ * @access  BUSINESS, ADMIN, ADMIN_SYSTEM
+ */
+router.post(
+  '/config/:businessId/documents',
+  requireRole(['BUSINESS', 'ADMIN', 'ADMIN_SYSTEM']),
+  upload.single('file'),
+  async (req, res) => {
+    try {
+      const { businessId } = req.params;
+      if (!await checkBusinessOwnership(req, businessId)) {
+        return res.status(403).json({ success: false, message: 'Không có quyền cập nhật config này' });
+      }
+      if (!req.file) {
+        return res.status(400).json({ success: false, message: 'Không có file được gửi lên' });
+      }
+
+      const config = await BusinessConfig.findOne({ businessId });
+      if (!config) return res.status(404).json({ success: false, message: 'Không tìm thấy cấu hình' });
+
+      // Enforce document limit (max 10)
+      if ((config.documents || []).length >= 10) {
+        return res.status(400).json({ success: false, message: 'Đã đạt giới hạn tối đa 10 tài liệu' });
+      }
+
+      // Upload to Gemini File API
+      const fileBuffer = req.file.buffer;
+      const mimeType = req.file.mimetype;
+      const originalName = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
+
+      const uploadedFile = await geminiClient.files.upload({
+        file: new Blob([fileBuffer], { type: mimeType }),
+        config: {
+          mimeType,
+          displayName: originalName,
+        },
+      });
+
+      const newDoc = {
+        name: originalName,
+        mimeType,
+        size: req.file.size,
+        uri: uploadedFile.uri,
+        geminiName: uploadedFile.name || '',
+        uploadedAt: new Date(),
+      };
+
+      config.documents = [...(config.documents || []), newDoc];
+      await config.save();
+
+      return res.json({ success: true, message: 'Tải lên tài liệu thành công', data: newDoc });
+    } catch (err) {
+      console.error('[Document Upload Error]', err);
+      return res.status(500).json({ success: false, message: err.message || 'Lỗi tải lên tài liệu' });
+    }
+  }
+);
+
+/**
+ * @route   DELETE /api/business/config/:businessId/documents/:docIndex
+ * @desc    Remove a document from DB (and optionally from Gemini File API)
+ * @access  BUSINESS, ADMIN, ADMIN_SYSTEM
+ */
+router.delete(
+  '/config/:businessId/documents/:docIndex',
+  requireRole(['BUSINESS', 'ADMIN', 'ADMIN_SYSTEM']),
+  async (req, res) => {
+    try {
+      const { businessId, docIndex } = req.params;
+      if (!await checkBusinessOwnership(req, businessId)) {
+        return res.status(403).json({ success: false, message: 'Không có quyền xóa tài liệu này' });
+      }
+
+      const config = await BusinessConfig.findOne({ businessId });
+      if (!config) return res.status(404).json({ success: false, message: 'Không tìm thấy cấu hình' });
+
+      const idx = parseInt(docIndex, 10);
+      if (isNaN(idx) || idx < 0 || idx >= (config.documents || []).length) {
+        return res.status(400).json({ success: false, message: 'Index tài liệu không hợp lệ' });
+      }
+
+      const doc = config.documents[idx];
+
+      // Try to delete from Gemini (best-effort, non-blocking)
+      if (doc.geminiName) {
+        geminiClient.files.delete({ name: doc.geminiName }).catch((e) => {
+          console.warn('[Gemini Delete Warning]', e.message);
+        });
+      }
+
+      config.documents.splice(idx, 1);
+      await config.save();
+
+      return res.json({ success: true, message: 'Xóa tài liệu thành công' });
+    } catch (err) {
+      console.error('[Document Delete Error]', err);
+      return res.status(500).json({ success: false, message: 'Lỗi xóa tài liệu' });
+    }
+  }
+);
 
 module.exports = router;

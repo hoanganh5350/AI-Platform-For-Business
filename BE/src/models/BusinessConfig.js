@@ -38,6 +38,19 @@ const uiFlowNodeSchema = new mongoose.Schema(
   { _id: false }
 );
 
+// ─── Document Sub-Schema (Gemini File API) ────────────────────────────────────
+const documentSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    mimeType: { type: String, required: true },
+    size: { type: Number, default: 0 },
+    uri: { type: String, required: true },     // Gemini File API URI
+    geminiName: { type: String, default: '' }, // Gemini internal file name (for deletion)
+    uploadedAt: { type: Date, default: Date.now },
+  },
+  { _id: false }
+);
+
 // ─── Business Config Schema ──────────────────────────────────────────────────
 const businessConfigSchema = new mongoose.Schema(
   {
@@ -112,6 +125,16 @@ const businessConfigSchema = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true,
+    },
+    // ── Internet Search (Gemini Search Grounding) ──
+    enableInternetSearch: {
+      type: Boolean,
+      default: false,
+    },
+    // ── Knowledge Documents (Gemini File API) ──
+    documents: {
+      type: [documentSchema],
+      default: [],
     },
     metadata: {
       type: Map,

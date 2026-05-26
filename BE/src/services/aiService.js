@@ -325,18 +325,52 @@ OUTPUT ONLY JSON. No markdown. No code blocks. No extra text. Always valid JSON.
 
       logger.debug(`[AI] model=${this.model} | business=${businessConfig.businessId} | msg="${userMessage.substring(0, 80)}"`);
 
-      const chat = this.ai.chats.create({
+      // ── Build tools list ────────────────────────────────────────────────────
+      const tools = [];
+      if (businessConfig.enableInternetSearch) {
+        tools.push({ googleSearch: {} });
+        logger.debug(`[AI] Search Grounding ENABLED for business=${businessConfig.businessId}`);
+      }
+
+      // ── Build document file parts for context ───────────────────────────────
+      const fileParts = [];
+      if (Array.isArray(businessConfig.documents) && businessConfig.documents.length > 0) {
+        for (const doc of businessConfig.documents) {
+          if (doc.uri && doc.mimeType) {
+            fileParts.push({
+              fileData: {
+                mimeType: doc.mimeType,
+                fileUri: doc.uri,
+              },
+            });
+          }
+        }
+        if (fileParts.length > 0) {
+          logger.debug(`[AI] Including ${fileParts.length} document(s) as context for business=${businessConfig.businessId}`);
+        }
+      }
+
+      const chatConfig = {
         model: this.model,
         config: {
           systemInstruction,
           temperature: this.generationConfig.temperature,
           topP: this.generationConfig.topP,
           maxOutputTokens: this.generationConfig.maxOutputTokens,
+          ...(tools.length > 0 ? { tools } : {}),
         },
         history,
-      });
+      };
 
-      const response = await chat.sendMessage({ message: userMessage });
+      const chat = this.ai.chats.create(chatConfig);
+
+      // Build message: text + any document file parts
+      const messageParts = [
+        ...fileParts,
+        { text: userMessage },
+      ];
+
+      const response = await chat.sendMessage({ message: messageParts });
       const rawText = response.text;
 
       logger.debug(`[AI] Raw: ${(rawText || '').substring(0, 200)}`);

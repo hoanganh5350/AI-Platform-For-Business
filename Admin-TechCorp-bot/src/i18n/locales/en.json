@@ -89,7 +89,9 @@
   },
   "business": {
     "title": "Business Information",
-    "desc_label": "Business Description / AI Knowledge Base"
+    "desc_label": "Business Description / AI Knowledge Base",
+    "internet_search_label": "Internet Search (Web Grounding)",
+    "internet_search_desc": "When enabled, the chatbot will search the web for additional information about your business in real time"
   },
   "chatbot": {
     "title": "Chatbot Configuration",
@@ -104,6 +106,31 @@
     "lang_auto": "Auto (Detect from user)",
     "lang_vi": "Vietnamese",
     "lang_en": "English"
+  },
+  "docs": {
+    "title": "Knowledge Documents",
+    "subtitle": "Upload documents (PDF, DOCX, TXT) for the chatbot to use as supplementary knowledge sources.",
+    "tooltip": "Gemini AI will read the content of these documents and prioritize them when answering user questions.",
+    "drop_hint": "Drag & drop documents here or click to browse",
+    "max_hint": "Max {{max}}MB per file",
+    "uploading": "Uploading",
+    "file_count": "documents uploaded",
+    "upload_success": "Upload Successful",
+    "upload_success_desc": "has been added to the knowledge base",
+    "upload_error": "Upload Failed",
+    "upload_error_desc": "Could not upload document. Please try again.",
+    "delete_success": "Document Deleted",
+    "delete_success_desc": "Document removed from knowledge base",
+    "delete_error": "Delete Failed",
+    "delete_error_desc": "Could not delete document. Please try again.",
+    "confirm_delete": "Delete document?",
+    "confirm_delete_desc": "The chatbot will no longer use this document as a reference.",
+    "error_type": "Unsupported format",
+    "error_type_desc": "Only PDF, DOCX, DOC, TXT are accepted",
+    "error_size": "File too large",
+    "error_size_desc": "Exceeds the {{max}}MB limit",
+    "error_limit": "Limit reached",
+    "error_limit_desc": "Maximum {{max}} documents per configuration"
   },
   "ui_flow": {
     "title": "UI Flow Configuration",
