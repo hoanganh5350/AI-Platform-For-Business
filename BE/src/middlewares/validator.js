@@ -5,6 +5,11 @@ const Joi = require('joi');
 // ─── Validation Middleware ────────────────────────────────────────────────────
 
 const validate = (schema) => (req, res, next) => {
+  // Skip Joi validation for multipart requests (handled by multer/controller)
+  if (req.headers['content-type']?.includes('multipart/form-data')) {
+    return next();
+  }
+
   const { error, value } = schema.validate(req.body, {
     abortEarly: false,
     allowUnknown: false,
@@ -81,7 +86,7 @@ const schemas = {
    * Send a chat message
    */
   sendMessage: Joi.object({
-    message: Joi.string().trim().min(1).max(2000).required(),
+    message: Joi.string().trim().min(1).max(2000).optional().allow('', null),
     sessionId: Joi.string().uuid().optional(),
   }),
 

@@ -11,7 +11,9 @@ const router = express.Router();
  * @desc    Send a chat message and get AI response
  * @access  Public
  */
-router.post('/:businessId', validate(schemas.sendMessage), sendMessage);
+// sendMessage is [multerMiddleware, errorHandler, mainHandler] — spread it
+// validate runs only for JSON requests (multipart is skipped in validator.js)
+router.post('/:businessId', validate(schemas.sendMessage), ...sendMessage);
 
 /**
  * @route   GET /api/chat/:businessId/history/:sessionId

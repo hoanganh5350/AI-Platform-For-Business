@@ -28,17 +28,15 @@ const { Text, Title } = Typography;
 
 const ACCEPTED_TYPES = [
   'application/pdf',
-  'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'text/plain',
 ];
-const ACCEPTED_EXTS = '.pdf,.doc,.docx,.txt';
+const ACCEPTED_EXTS = '.pdf,.docx,.txt';
 const MAX_FILES = 10;
 const MAX_SIZE_MB = 50;
 
 const MIME_ICON: Record<string, React.ReactNode> = {
   'application/pdf': <FilePdfOutlined style={{ color: '#ff4d4f', fontSize: 20 }} />,
-  'application/msword': <FileWordOutlined style={{ color: '#1677ff', fontSize: 20 }} />,
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': (
     <FileWordOutlined style={{ color: '#1677ff', fontSize: 20 }} />
   ),
@@ -47,7 +45,6 @@ const MIME_ICON: Record<string, React.ReactNode> = {
 
 const MIME_LABEL: Record<string, string> = {
   'application/pdf': 'PDF',
-  'application/msword': 'DOC',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX',
   'text/plain': 'TXT',
 };
@@ -198,7 +195,7 @@ export const DocumentUpload: React.FC<Props> = ({ businessId, documents, onDocum
             <CloudUploadOutlined style={{ fontSize: 32, color: '#1677ff' }} />
             <Text strong style={{ fontSize: 14 }}>{t('docs.drop_hint')}</Text>
             <Text type="secondary" style={{ fontSize: 12 }}>
-              PDF, DOCX, DOC, TXT — {t('docs.max_hint', { max: MAX_SIZE_MB })}
+              PDF, DOCX, TXT — {t('docs.max_hint', { max: MAX_SIZE_MB })}
             </Text>
           </Space>
         )}

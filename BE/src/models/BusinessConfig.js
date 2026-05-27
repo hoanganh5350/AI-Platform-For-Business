@@ -38,14 +38,15 @@ const uiFlowNodeSchema = new mongoose.Schema(
   { _id: false }
 );
 
-// ─── Document Sub-Schema (Gemini File API) ────────────────────────────────────
+// ─── Document Sub-Schema (Gemini File API & Text Extracted Docs) ──────────────
 const documentSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     mimeType: { type: String, required: true },
     size: { type: Number, default: 0 },
-    uri: { type: String, required: true },     // Gemini File API URI
+    uri: { type: String, required: false },    // Gemini File API URI (optional if text is extracted)
     geminiName: { type: String, default: '' }, // Gemini internal file name (for deletion)
+    extractedText: { type: String, default: '' }, // Extracted text content for Word/DOCX files
     uploadedAt: { type: Date, default: Date.now },
   },
   { _id: false }

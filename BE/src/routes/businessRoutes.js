@@ -14,7 +14,6 @@ const router = express.Router();
 // Multer — store in memory (max 50MB), filter by MIME type
 const ALLOWED_MIME = [
   'application/pdf',
-  'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'text/plain',
 ];
@@ -235,27 +234,41 @@ router.post(
         return res.status(400).json({ success: false, message: 'Đã đạt giới hạn tối đa 10 tài liệu' });
       }
 
-      // Upload to Gemini File API
       const fileBuffer = req.file.buffer;
       const mimeType = req.file.mimetype;
       const originalName = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
 
-      const uploadedFile = await geminiClient.files.upload({
-        file: new Blob([fileBuffer], { type: mimeType }),
-        config: {
-          mimeType,
-          displayName: originalName,
-        },
-      });
+      let newDoc;
 
-      const newDoc = {
-        name: originalName,
-        mimeType,
-        size: req.file.size,
-        uri: uploadedFile.uri,
-        geminiName: uploadedFile.name || '',
-        uploadedAt: new Date(),
-      };
+      if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        const mammoth = require('mammoth');
+        const parseResult = await mammoth.extractRawText({ buffer: fileBuffer });
+        newDoc = {
+          name: originalName,
+          mimeType,
+          size: req.file.size,
+          extractedText: parseResult.value,
+          uploadedAt: new Date(),
+        };
+      } else {
+        // Upload to Gemini File API (PDF, TXT)
+        const uploadedFile = await geminiClient.files.upload({
+          file: new Blob([fileBuffer], { type: mimeType }),
+          config: {
+            mimeType,
+            displayName: originalName,
+          },
+        });
+
+        newDoc = {
+          name: originalName,
+          mimeType,
+          size: req.file.size,
+          uri: uploadedFile.uri,
+          geminiName: uploadedFile.name || '',
+          uploadedAt: new Date(),
+        };
+      }
 
       config.documents = [...(config.documents || []), newDoc];
       await config.save();

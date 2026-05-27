@@ -88,6 +88,27 @@ class AIService {
       neutral: 'Use neutral, balanced, and objective language.',
     }[tone || 'professional'] || 'Use professional language.';
 
+    let docsText = '';
+    if (Array.isArray(config.documents) && config.documents.length > 0) {
+      docsText = '\n\n========================\n📄 SYSTEM KNOWLEDGE BASE DOCUMENTS (ADMIN CONFIGURED)\n========================\n';
+      docsText += 'Below are the internal knowledge base documents configured by the Admin to serve as your reference data. Use this information to support customers:\n';
+      
+      config.documents.forEach((doc, idx) => {
+        docsText += `\n[Reference Document #${idx + 1}: "${doc.name}"]\n`;
+        if (doc.extractedText) {
+          docsText += `${doc.extractedText}\n`;
+        } else if (doc.uri) {
+          docsText += `(The contents of this PDF file are attached directly in the system message context with matching filename "${doc.name}")\n`;
+        }
+      });
+      
+      docsText += '\n========================\n🎯 CRITICAL RULES FOR REFERENCE DOCUMENTS\n========================\n';
+      docsText += '1. STRICT DISTINCTION: These documents are pre-configured by the Admin to serve as your internal knowledge base. Do NOT confuse them with active files uploaded by the chatting user.\n';
+      docsText += '2. TONE & ATTRIBUTION: When answering questions using information from these Admin-configured documents, answer naturally as an intelligent assistant who already knows this information by heart (e.g., "According to the company policy...", "The enrollment details are...", or answer directly). Absolutely DO NOT use phrases like "In the file you sent" or "You just uploaded this file" when referring to these Admin-configured documents.\n';
+      docsText += '3. USER UPLOADED FILES: Only files explicitly prefixed with "[FILE ĐÍNH KÈM CỦA NGƯỜI DÙNG...]" are files uploaded by the active chatting user in this session. You can refer to those user-uploaded files with phrases like "In the file you just sent...".\n';
+      docsText += '4. ANSWERING SCOPE: Answer ONLY based on the facts provided in these documents. If the user asks something not found in these documents, politely decline or guide them to contact the business using the contact/website details provided.\n';
+    }
+
     return `You are ${chatbotName || 'AI Assistant'}, an intelligent chatbot assistant operating on a multi-tenant enterprise platform.
 
 You are currently acting as the AI assistant for a specific business configured by the Admin.
@@ -103,7 +124,7 @@ Industry: ${industry || 'Not specified'}
 Description: ${description}
 Contact: ${contact || 'Not specified'}
 Website: ${website || 'Not specified'}
-Tone: ${tone || 'professional'}
+Tone: ${tone || 'professional'}${docsText}
 
 ========================
 ⚙️ ADMIN CONFIGURATION CONTEXT
@@ -317,8 +338,9 @@ OUTPUT ONLY JSON. No markdown. No code blocks. No extra text. Always valid JSON.
    * @param {string}  params.userMessage
    * @param {Object}  params.businessConfig
    * @param {Array}   params.conversationHistory
+   * @param {Object}  params.userFileRef
    */
-  async generateResponse({ userMessage, businessConfig, conversationHistory = [] }) {
+  async generateResponse({ userMessage, businessConfig, conversationHistory = [], userFileRef }) {
     try {
       const systemInstruction = this._buildSystemPrompt(businessConfig);
       const history = this._buildHistory(conversationHistory);
@@ -332,11 +354,14 @@ OUTPUT ONLY JSON. No markdown. No code blocks. No extra text. Always valid JSON.
         logger.debug(`[AI] Search Grounding ENABLED for business=${businessConfig.businessId}`);
       }
 
-      // ── Build document file parts for context ───────────────────────────────
+      // ── Build document file parts for context (Admin configured) ─────────────
       const fileParts = [];
       if (Array.isArray(businessConfig.documents) && businessConfig.documents.length > 0) {
         for (const doc of businessConfig.documents) {
           if (doc.uri && doc.mimeType) {
+            fileParts.push({
+              text: `[HỆ THỐNG - TÀI LIỆU THAM KHẢO cấu hình bởi Admin: "${doc.name}"]`
+            });
             fileParts.push({
               fileData: {
                 mimeType: doc.mimeType,
@@ -346,8 +371,23 @@ OUTPUT ONLY JSON. No markdown. No code blocks. No extra text. Always valid JSON.
           }
         }
         if (fileParts.length > 0) {
-          logger.debug(`[AI] Including ${fileParts.length} document(s) as context for business=${businessConfig.businessId}`);
+          logger.debug(`[AI] Including ${fileParts.length / 2} reference document(s) as grounding context for business=${businessConfig.businessId}`);
         }
+      }
+
+      // ── Build user uploaded file parts (Active chat session attachment) ──────
+      const userFileParts = [];
+      if (userFileRef && userFileRef.uri && userFileRef.mimeType) {
+        userFileParts.push({
+          text: `[FILE ĐÍNH KÈM CỦA NGƯỜI DÙNG nhắn tin tải lên để phân tích: "${userFileRef.name}"]`
+        });
+        userFileParts.push({
+          fileData: {
+            mimeType: userFileRef.mimeType,
+            fileUri: userFileRef.uri,
+          },
+        });
+        logger.debug(`[AI] Including user uploaded file: "${userFileRef.name}" as active chat context`);
       }
 
       const chatConfig = {
@@ -364,9 +404,10 @@ OUTPUT ONLY JSON. No markdown. No code blocks. No extra text. Always valid JSON.
 
       const chat = this.ai.chats.create(chatConfig);
 
-      // Build message: text + any document file parts
+      // Build message: Admin reference documents + User attached files + User prompt
       const messageParts = [
         ...fileParts,
+        ...userFileParts,
         { text: userMessage },
       ];
 

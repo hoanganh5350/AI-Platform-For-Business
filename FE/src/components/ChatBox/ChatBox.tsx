@@ -13,7 +13,7 @@ interface ChatBoxProps {
   uiFlowTree?: UIFlowNode[];
   primaryColor?: string;
   mode?: 'float' | 'fullpage';
-  onSend: (message: string) => void;
+  onSend: (message: string, file?: File | null) => void;
   onClose?: () => void;
   onClear?: () => void;
   onSuggestionClick?: (suggestion: AISuggestion) => void;
