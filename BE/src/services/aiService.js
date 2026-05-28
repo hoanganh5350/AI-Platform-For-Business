@@ -354,26 +354,9 @@ OUTPUT ONLY JSON. No markdown. No code blocks. No extra text. Always valid JSON.
         logger.debug(`[AI] Search Grounding ENABLED for business=${businessConfig.businessId}`);
       }
 
-      // ── Build document file parts for context (Admin configured) ─────────────
-      const fileParts = [];
-      if (Array.isArray(businessConfig.documents) && businessConfig.documents.length > 0) {
-        for (const doc of businessConfig.documents) {
-          if (doc.uri && doc.mimeType) {
-            fileParts.push({
-              text: `[HỆ THỐNG - TÀI LIỆU THAM KHẢO cấu hình bởi Admin: "${doc.name}"]`
-            });
-            fileParts.push({
-              fileData: {
-                mimeType: doc.mimeType,
-                fileUri: doc.uri,
-              },
-            });
-          }
-        }
-        if (fileParts.length > 0) {
-          logger.debug(`[AI] Including ${fileParts.length / 2} reference document(s) as grounding context for business=${businessConfig.businessId}`);
-        }
-      }
+      // ── Admin reference documents are now embedded via extractedText in systemInstruction ──
+      // No Gemini File API URIs are used for Admin docs. All knowledge is permanent in MongoDB.
+      // See _buildSystemPrompt() for how extractedText is injected into the AI context.
 
       // ── Build user uploaded file parts (Active chat session attachment) ──────
       const userFileParts = [];
@@ -404,9 +387,9 @@ OUTPUT ONLY JSON. No markdown. No code blocks. No extra text. Always valid JSON.
 
       const chat = this.ai.chats.create(chatConfig);
 
-      // Build message: Admin reference documents + User attached files + User prompt
+      // Build message: User attached file (if any) + User prompt text
+      // Admin knowledge is already embedded in systemInstruction via _buildSystemPrompt()
       const messageParts = [
-        ...fileParts,
         ...userFileParts,
         { text: userMessage },
       ];

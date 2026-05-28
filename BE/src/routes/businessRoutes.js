@@ -3,11 +3,72 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
+const mammoth = require('mammoth');
+const pdfParse = require('pdf-parse');
+const { GoogleGenAI } = require('@google/genai');
+const aiConfig = require('../config/ai');
 const { authMiddleware, requireRole } = require('../middlewares/auth');
 const businessConfigService = require('../services/businessConfigService');
 const BusinessConfig = require('../models/BusinessConfig');
-const { GoogleGenAI } = require('@google/genai');
 const User = require('../models/User');
+
+// Lazy Gemini client for OCR fallback (only instantiated when needed)
+let _geminiOcrClient = null;
+const getGeminiClient = () => {
+  if (!_geminiOcrClient) _geminiOcrClient = new GoogleGenAI({ apiKey: aiConfig.gemini.apiKey });
+  return _geminiOcrClient;
+};
+
+/**
+ * OCR fallback: Upload PDF to Gemini File API → extract all text → delete from Gemini.
+ * Used when pdf-parse cannot extract sufficient text (scanned/image PDFs).
+ */
+const extractTextViaGeminiOCR = async (fileBuffer, mimeType, fileName) => {
+  const gemini = getGeminiClient();
+  let uploadedFile = null;
+  try {
+    // Upload to Gemini File API (temporary, will be deleted after extraction)
+    const blob = new Blob([fileBuffer], { type: mimeType });
+    uploadedFile = await gemini.files.upload({
+      file: blob,
+      config: { mimeType, displayName: fileName },
+    });
+
+    // Wait for file to be ACTIVE
+    let fileStatus = uploadedFile;
+    let retries = 0;
+    while (fileStatus.state === 'PROCESSING' && retries < 10) {
+      await new Promise(r => setTimeout(r, 2000));
+      fileStatus = await gemini.files.get(uploadedFile.name);
+      retries++;
+    }
+
+    if (fileStatus.state !== 'ACTIVE') {
+      throw new Error(`Gemini file processing failed: ${fileStatus.state}`);
+    }
+
+    // Ask Gemini to extract all text from the document
+    const chat = gemini.chats.create({ model: aiConfig.gemini.model || 'gemini-2.5-flash' });
+    const response = await chat.sendMessage({
+      message: [
+        { fileData: { mimeType, fileUri: fileStatus.uri } },
+        { text: 'Please extract ALL text content from this document verbatim. Return only the extracted text, no commentary, no formatting markers. Preserve paragraphs and line breaks as found in the original.' },
+      ],
+    });
+
+    return response.text || '';
+  } finally {
+    // Always clean up: delete from Gemini immediately after extraction
+    if (uploadedFile?.name) {
+      try {
+        await gemini.files.delete(uploadedFile.name);
+        console.info(`[OCR] Deleted temporary Gemini file: ${uploadedFile.name}`);
+      } catch (delErr) {
+        console.warn(`[OCR] Could not delete Gemini file ${uploadedFile.name}: ${delErr.message}`);
+      }
+    }
+  }
+};
 
 const router = express.Router();
 
@@ -25,9 +86,6 @@ const upload = multer({
     cb(new Error(`Định dạng file không hỗ trợ: ${file.mimetype}`));
   },
 });
-
-// Gemini client for File API
-const geminiClient = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 
 // Helper: verify BUSINESS user owns the given businessId (uses DB to handle stale JWTs)
@@ -209,7 +267,15 @@ router.patch('/update-config/:businessId', requireRole(['BUSINESS']), async (req
 
 /**
  * @route   POST /api/business/config/:businessId/documents
- * @desc    Upload a document to Gemini File API and save URI in DB
+ * @desc    Upload a document and extract its text content for permanent storage in MongoDB.
+ *          All formats (PDF, DOCX, TXT) are extracted server-side — NO Gemini File API dependency.
+ *          This ensures knowledge base documents never expire (Gemini File API deletes after 48h).
+ *
+ *          Extraction strategy:
+ *            - DOCX → mammoth (extracts clean raw text from Word documents)
+ *            - PDF  → pdf-parse (extracts text layer from PDF files)
+ *            - TXT  → UTF-8 decode from buffer directly
+ *
  * @access  BUSINESS, ADMIN, ADMIN_SYSTEM
  */
 router.post(
@@ -238,42 +304,63 @@ router.post(
       const mimeType = req.file.mimetype;
       const originalName = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
 
-      let newDoc;
+      let extractedText = '';
 
+      // ── DOCX: extract via mammoth ─────────────────────────────────────────────
       if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-        const mammoth = require('mammoth');
-        const parseResult = await mammoth.extractRawText({ buffer: fileBuffer });
-        newDoc = {
-          name: originalName,
-          mimeType,
-          size: req.file.size,
-          extractedText: parseResult.value,
-          uploadedAt: new Date(),
-        };
-      } else {
-        // Upload to Gemini File API (PDF, TXT)
-        const uploadedFile = await geminiClient.files.upload({
-          file: new Blob([fileBuffer], { type: mimeType }),
-          config: {
-            mimeType,
-            displayName: originalName,
-          },
-        });
+        const result = await mammoth.extractRawText({ buffer: fileBuffer });
+        extractedText = result.value || '';
+        console.info(`[DocumentUpload] DOCX extracted ${extractedText.length} chars from "${originalName}"`);
 
-        newDoc = {
-          name: originalName,
-          mimeType,
-          size: req.file.size,
-          uri: uploadedFile.uri,
-          geminiName: uploadedFile.name || '',
-          uploadedAt: new Date(),
-        };
+      // ── PDF: extract via pdf-parse, fallback to Gemini OCR for scanned PDFs ──────
+      } else if (mimeType === 'application/pdf') {
+        const parsed = await pdfParse(fileBuffer);
+        const numPages = parsed.numpages || 1;
+        extractedText = parsed.text || '';
+        console.info(`[DocumentUpload] PDF (pdf-parse) extracted ${extractedText.length} chars from "${originalName}" (${numPages} pages)`);
+
+        // Heuristic: < 50 chars/page likely means scanned/image-based PDF → use Gemini OCR
+        const charsPerPage = extractedText.trim().length / numPages;
+        if (charsPerPage < 50) {
+          console.info(`[DocumentUpload] PDF appears scanned (${Math.round(charsPerPage)} chars/page). Falling back to Gemini OCR for "${originalName}"...`);
+          const ocrText = await extractTextViaGeminiOCR(fileBuffer, mimeType, originalName);
+          if (ocrText.trim().length > extractedText.trim().length) {
+            extractedText = ocrText;
+            console.info(`[DocumentUpload] Gemini OCR extracted ${extractedText.length} chars from "${originalName}"`);
+          }
+        }
+
+      // ── TXT: decode buffer directly ───────────────────────────────────────────
+      } else if (mimeType === 'text/plain') {
+        extractedText = fileBuffer.toString('utf8');
+        console.info(`[DocumentUpload] TXT decoded ${extractedText.length} chars from "${originalName}"`);
       }
+
+      if (!extractedText.trim()) {
+        return res.status(422).json({
+          success: false,
+          message: 'Không thể trích xuất nội dung từ tài liệu này. File có thể bị scan dạng ảnh hoặc bị bảo vệ.',
+        });
+      }
+
+      const newDoc = {
+        name: originalName,
+        mimeType,
+        size: req.file.size,
+        extractedText,           // ✅ Stored permanently in MongoDB — no expiry
+        uploadedAt: new Date(),
+      };
 
       config.documents = [...(config.documents || []), newDoc];
       await config.save();
 
-      return res.json({ success: true, message: 'Tải lên tài liệu thành công', data: newDoc });
+      // Return doc info without the full extractedText (may be very large)
+      const { extractedText: _omit, ...docInfo } = newDoc;
+      return res.json({
+        success: true,
+        message: `Tải lên và trích xuất tài liệu thành công (${extractedText.length.toLocaleString()} ký tự)`,
+        data: { ...docInfo, charCount: extractedText.length },
+      });
     } catch (err) {
       console.error('[Document Upload Error]', err);
       return res.status(500).json({ success: false, message: err.message || 'Lỗi tải lên tài liệu' });
@@ -283,7 +370,8 @@ router.post(
 
 /**
  * @route   DELETE /api/business/config/:businessId/documents/:docIndex
- * @desc    Remove a document from DB (and optionally from Gemini File API)
+ * @desc    Remove a document from DB by index.
+ *          Documents are stored as extractedText in MongoDB — no Gemini File API cleanup needed.
  * @access  BUSINESS, ADMIN, ADMIN_SYSTEM
  */
 router.delete(
@@ -302,15 +390,6 @@ router.delete(
       const idx = parseInt(docIndex, 10);
       if (isNaN(idx) || idx < 0 || idx >= (config.documents || []).length) {
         return res.status(400).json({ success: false, message: 'Index tài liệu không hợp lệ' });
-      }
-
-      const doc = config.documents[idx];
-
-      // Try to delete from Gemini (best-effort, non-blocking)
-      if (doc.geminiName) {
-        geminiClient.files.delete({ name: doc.geminiName }).catch((e) => {
-          console.warn('[Gemini Delete Warning]', e.message);
-        });
       }
 
       config.documents.splice(idx, 1);
